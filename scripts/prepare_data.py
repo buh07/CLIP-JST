@@ -213,7 +213,9 @@ def _encode_images(paths: list[str], model, processor, device, batch_size: int) 
         batch_paths = paths[i : i + batch_size]
         imgs = [Image.open(p).convert("RGB") for p in batch_paths]
         inp = processor(images=imgs, return_tensors="pt").to(device)
-        feats.append(model.get_image_features(**inp).cpu())
+        vision_out = model.vision_model(pixel_values=inp["pixel_values"])
+        f = model.visual_projection(vision_out.pooler_output).cpu()
+        feats.append(f)
     return torch.cat(feats)
 
 
@@ -223,7 +225,12 @@ def _encode_texts(texts: list[str], model, processor, device, batch_size: int) -
     for i in tqdm(range(0, len(texts), batch_size), desc="  txt"):
         batch = texts[i : i + batch_size]
         inp = processor(text=batch, return_tensors="pt", padding=True, truncation=True).to(device)
-        feats.append(model.get_text_features(**inp).cpu())
+        text_out = model.text_model(
+            input_ids=inp["input_ids"],
+            attention_mask=inp.get("attention_mask"),
+        )
+        f = model.text_projection(text_out.pooler_output).cpu()
+        feats.append(f)
     return torch.cat(feats)
 
 

@@ -108,7 +108,11 @@ def encode_texts(
         inp = processor(
             text=batch, return_tensors="pt", padding=True, truncation=True
         ).to(device)
-        feats.append(model.get_text_features(**inp).cpu())
+        text_out = model.text_model(
+            input_ids=inp["input_ids"],
+            attention_mask=inp.get("attention_mask"),
+        )
+        feats.append(model.text_projection(text_out.pooler_output).cpu())
     return torch.cat(feats)
 
 

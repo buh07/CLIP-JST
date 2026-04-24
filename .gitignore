@@ -10,8 +10,11 @@ build/
 .ipynb_checkpoints/
 notebooks/
 
-# All data — never push datasets or caches
-data/
+# Datasets and caches — never push
+data/cache/
+data/coco/
+data/flickr30k/
+data/NUS-WIDE/
 
 # Experiment results and model checkpoints
 results/

@@ -64,7 +64,8 @@ def extract_and_cache(
         for i in range(0, len(image_paths), batch_size):
             images = [Image.open(p).convert("RGB") for p in image_paths[i:i+batch_size]]
             inputs = processor(images=images, return_tensors="pt").to(device)
-            img_feats.append(model.get_image_features(**inputs).cpu())
+            vision_out = model.vision_model(pixel_values=inputs["pixel_values"])
+            img_feats.append(model.visual_projection(vision_out.pooler_output).cpu())
             if (i // batch_size) % 10 == 0:
                 print(f"  images {i}/{len(image_paths)}")
 
@@ -73,7 +74,11 @@ def extract_and_cache(
                 text=captions[i:i+batch_size],
                 return_tensors="pt", padding=True, truncation=True,
             ).to(device)
-            txt_feats.append(model.get_text_features(**inputs).cpu())
+            text_out = model.text_model(
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs.get("attention_mask"),
+            )
+            txt_feats.append(model.text_projection(text_out.pooler_output).cpu())
             if (i // batch_size) % 10 == 0:
                 print(f"  texts {i}/{len(captions)}")
 
@@ -136,7 +141,8 @@ def extract_and_cache_multi_caption(
         for i in range(0, N, batch_size):
             images = [Image.open(p).convert("RGB") for p in image_paths[i:i+batch_size]]
             inputs = processor(images=images, return_tensors="pt").to(device)
-            img_feats.append(model.get_image_features(**inputs).cpu())
+            vision_out = model.vision_model(pixel_values=inputs["pixel_values"])
+            img_feats.append(model.visual_projection(vision_out.pooler_output).cpu())
             if (i // batch_size) % 10 == 0:
                 print(f"  images {i}/{N}")
 
@@ -145,7 +151,11 @@ def extract_and_cache_multi_caption(
                 text=captions[i:i+batch_size],
                 return_tensors="pt", padding=True, truncation=True,
             ).to(device)
-            txt_feats.append(model.get_text_features(**inputs).cpu())
+            text_out = model.text_model(
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs.get("attention_mask"),
+            )
+            txt_feats.append(model.text_projection(text_out.pooler_output).cpu())
             if (i // batch_size) % 10 == 0:
                 print(f"  captions {i}/{len(captions)}")
 
