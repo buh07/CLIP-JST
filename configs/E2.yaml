@@ -7,7 +7,7 @@ image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
 text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
 output_dir: results/E2
 
-vision_dim: 768
+vision_dim: 512
 text_dim:   512
 embed_dim:  256      # Fixed m; vary rank
 

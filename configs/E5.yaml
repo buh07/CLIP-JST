@@ -6,7 +6,7 @@ image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
 text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
 output_dir: results/E5
 
-vision_dim: 768
+vision_dim: 512
 text_dim:   512
 embed_dim:  256
 mahal_rank: null   # full Mahalanobis for federated clients

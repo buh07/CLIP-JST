@@ -3,7 +3,7 @@
 
 output_dir: results/D1
 
-vision_dim: 768
+vision_dim: 512
 text_dim:   512
 embed_dim:  256
 mahal_rank: null

@@ -14,7 +14,7 @@ n_captions:
   flickr30k: 5
   cc3m: 1
 
-vision_dim: 768
+vision_dim: 512
 text_dim:   512
 embed_dim:  256
 

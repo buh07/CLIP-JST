@@ -134,7 +134,7 @@ def prepare_coco() -> tuple[list[str], list[str]]:
 KARPATHY_URL = "https://cs.stanford.edu/people/karpathy/deepimagesent/caption_datasets.zip"
 
 
-def prepare_flickr30k() -> tuple[list[str], list[str]]:
+def prepare_flickr30k() -> tuple[list[str], list[str]] | None:
     """
     Downloads Flickr30K images via HuggingFace datasets (nlphuji/flickr30k).
     Falls back to local directory if HF download fails.
@@ -164,20 +164,37 @@ def prepare_flickr30k() -> tuple[list[str], list[str]]:
     if len(existing) < 1000:
         print("Downloading Flickr30K images from HuggingFace (nlphuji/flickr30k)...")
         print("  Note: if this fails, accept the dataset license at huggingface.co/datasets/nlphuji/flickr30k")
-        try:
-            os.environ["HF_HOME"] = HF_HOME
-            from datasets import load_dataset
-            hf_ds = load_dataset("nlphuji/flickr30k", split="test", trust_remote_code=True)
-            print(f"  Saving {len(hf_ds)} images to {img_dir} ...")
-            for item in tqdm(hf_ds, desc="Saving Flickr30K images"):
-                fname = item["filename"] if "filename" in item else f"{item['img_id']}.jpg"
-                out_path = img_dir / fname
-                if not out_path.exists():
-                    item["image"].save(out_path)
-        except Exception as e:
-            print(f"  HuggingFace download failed: {e}")
-            print(f"  Please place Flickr30K images in {img_dir} and re-run.")
-            sys.exit(1)
+        downloaded = False
+        os.environ["HF_HOME"] = HF_HOME
+        # Try multiple HuggingFace dataset variants (API changed in datasets 3.x).
+        hf_candidates = [
+            ("nlphuji/flickr30k", "test"),
+            ("Multimodal-Fatima/Flickr30K_original", "test"),
+        ]
+        for hf_name, hf_split in hf_candidates:
+            try:
+                from datasets import load_dataset
+                print(f"  Trying {hf_name} ...")
+                hf_ds = load_dataset(hf_name, split=hf_split)
+                print(f"  Saving {len(hf_ds)} images to {img_dir} ...")
+                for item in tqdm(hf_ds, desc="Saving Flickr30K images"):
+                    fname = item.get("filename") or item.get("img_id") or item.get("id")
+                    fname = str(fname) if not str(fname).endswith(".jpg") else fname
+                    if not str(fname).endswith(".jpg"):
+                        fname = f"{fname}.jpg"
+                    out_path = img_dir / fname
+                    if not out_path.exists():
+                        img = item.get("image") or item.get("img")
+                        img.save(out_path)
+                downloaded = True
+                break
+            except Exception as e:
+                print(f"  {hf_name} failed: {e}")
+        if not downloaded:
+            print(f"\n  WARNING: Could not auto-download Flickr30K images.")
+            print(f"  Place images in: {img_dir}")
+            print(f"  Then re-run prepare_data.py to cache Flickr30K features.")
+            return None  # Signal to caller that flickr30k is unavailable.
 
     # Parse Karpathy splits JSON.
     with open(ann_file) as f:
@@ -307,10 +324,14 @@ def main() -> None:
 
     # Flickr30K
     print("\n=== Flickr30K ===")
-    f30k_img, f30k_cap = prepare_flickr30k()
-    extract_and_save(f30k_img, f30k_cap, CACHE_ROOT / "flickr30k", model, processor, device)
+    f30k_result = prepare_flickr30k()
+    if f30k_result is not None:
+        f30k_img, f30k_cap = f30k_result
+        extract_and_save(f30k_img, f30k_cap, CACHE_ROOT / "flickr30k", model, processor, device)
+    else:
+        print("  Skipping Flickr30K feature extraction (images unavailable).")
 
-    # Sentinel for GPU 7 to poll on.
+    # Sentinel: COCO is ready; GPU 7 can start COCO-dependent experiments.
     sentinel = CACHE_ROOT / ".data_ready"
     sentinel.touch()
     print(f"\nData preparation complete. Sentinel written: {sentinel}")

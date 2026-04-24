@@ -1,7 +1,7 @@
 # E1: Performance vs. embedding dimension
 datasets:
   - coco
-  - flickr30k
+  # flickr30k: re-enable after placing images in data/flickr30k/flickr30k_images/
 
 n_captions:
   coco: 5
@@ -12,7 +12,7 @@ image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
 text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
 output_dir: results/E1
 
-vision_dim: 768
+vision_dim: 512
 text_dim:   512
 
 embed_dims:   [64, 128, 256, 512]
