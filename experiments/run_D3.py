@@ -138,6 +138,10 @@ def run(cfg: dict) -> None:
                            map_location="cpu", weights_only=True)
     txt_feats = torch.load(cache_dir / cfg["text_cache_file"],
                            map_location="cpu", weights_only=True)
+    # Multi-caption cache: collapse to one caption per image (first caption).
+    if len(txt_feats) != len(img_feats):
+        n_cap = len(txt_feats) // len(img_feats)
+        txt_feats = txt_feats[::n_cap]
 
     # (i) Full pairs.
     print("\n=== (i) Full COCO pairs ===")
