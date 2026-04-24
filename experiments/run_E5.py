@@ -71,6 +71,7 @@ def _federated_train(
     chunks = torch.chunk(indices, n_clients)
 
     # Pre-apply JL so clients never see raw features.
+    model = model.to(device)
     model.eval()
     with torch.no_grad():
         jl_img = model.jl_v(img_feats.to(device)).cpu()
