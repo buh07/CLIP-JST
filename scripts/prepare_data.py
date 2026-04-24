@@ -128,93 +128,62 @@ def prepare_coco() -> tuple[list[str], list[str]]:
 
 
 # ---------------------------------------------------------------------------
-# Flickr30K download + parse
+# Flickr30K — reads from git-cloned nlphuji/flickr30k repo
 # ---------------------------------------------------------------------------
-
-KARPATHY_URL = "https://cs.stanford.edu/people/karpathy/deepimagesent/caption_datasets.zip"
-
 
 def prepare_flickr30k() -> tuple[list[str], list[str]] | None:
     """
-    Downloads Flickr30K images via HuggingFace datasets (nlphuji/flickr30k).
-    Falls back to local directory if HF download fails.
-    Returns (image_paths, captions).
+    Reads Flickr30K from the git-cloned nlphuji/flickr30k repo layout:
+      data/flickr30k/flickr_annotations_30k.csv  — columns: raw, split, filename
+      data/flickr30k/flickr30k_images/*.jpg       — extracted from flickr30k-images.zip
+
+    Returns (image_paths, captions) for the train split, or None if images
+    are not yet extracted.
     """
+    import ast
+    import csv
+
     f30k_dir = DATA_ROOT / "flickr30k"
     img_dir  = f30k_dir / "flickr30k_images"
-    ann_file = f30k_dir / "dataset_flickr30k.json"
+    csv_file = f30k_dir / "flickr_annotations_30k.csv"
 
-    # Download Karpathy split JSON if not present.
-    if not ann_file.exists():
-        karp_zip = f30k_dir / "caption_datasets.zip"
-        _download(KARPATHY_URL, karp_zip, "Karpathy caption splits")
-        f30k_dir.mkdir(parents=True, exist_ok=True)
-        with zipfile.ZipFile(karp_zip) as zf:
-            # The zip contains dataset_flickr30k.json, dataset_coco.json etc.
-            for name in zf.namelist():
-                if "flickr30k" in name and name.endswith(".json"):
-                    with zf.open(name) as src, open(ann_file, "wb") as dst:
-                        dst.write(src.read())
-                    print(f"  Extracted {name} -> {ann_file}")
-                    break
+    if not csv_file.exists():
+        print(f"  Missing {csv_file}. Clone nlphuji/flickr30k into data/flickr30k first.")
+        return None
 
-    # Download images from HuggingFace if not present.
-    img_dir.mkdir(parents=True, exist_ok=True)
     existing = list(img_dir.glob("*.jpg"))
     if len(existing) < 1000:
-        print("Downloading Flickr30K images from HuggingFace (nlphuji/flickr30k)...")
-        print("  Note: if this fails, accept the dataset license at huggingface.co/datasets/nlphuji/flickr30k")
-        downloaded = False
-        os.environ["HF_HOME"] = HF_HOME
-        # Try multiple HuggingFace dataset variants (API changed in datasets 3.x).
-        hf_candidates = [
-            ("nlphuji/flickr30k", "test"),
-            ("Multimodal-Fatima/Flickr30K_original", "test"),
-        ]
-        for hf_name, hf_split in hf_candidates:
-            try:
-                from datasets import load_dataset
-                print(f"  Trying {hf_name} ...")
-                hf_ds = load_dataset(hf_name, split=hf_split)
-                print(f"  Saving {len(hf_ds)} images to {img_dir} ...")
-                for item in tqdm(hf_ds, desc="Saving Flickr30K images"):
-                    fname = item.get("filename") or item.get("img_id") or item.get("id")
-                    fname = str(fname) if not str(fname).endswith(".jpg") else fname
-                    if not str(fname).endswith(".jpg"):
-                        fname = f"{fname}.jpg"
-                    out_path = img_dir / fname
-                    if not out_path.exists():
-                        img = item.get("image") or item.get("img")
-                        img.save(out_path)
-                downloaded = True
-                break
-            except Exception as e:
-                print(f"  {hf_name} failed: {e}")
-        if not downloaded:
-            print(f"\n  WARNING: Could not auto-download Flickr30K images.")
-            print(f"  Place images in: {img_dir}")
-            print(f"  Then re-run prepare_data.py to cache Flickr30K features.")
-            return None  # Signal to caller that flickr30k is unavailable.
-
-    # Parse Karpathy splits JSON.
-    with open(ann_file) as f:
-        data = json.load(f)
+        zip_file = f30k_dir / "flickr30k-images.zip"
+        if zip_file.exists():
+            print(f"  Extracting {zip_file.name} ({zip_file.stat().st_size // 1_000_000} MB) ...")
+            img_dir.mkdir(exist_ok=True)
+            with zipfile.ZipFile(zip_file) as zf:
+                members = [m for m in zf.namelist() if m.endswith(".jpg")]
+                for m in tqdm(members, desc="  extracting"):
+                    fname = Path(m).name
+                    (img_dir / fname).write_bytes(zf.read(m))
+        else:
+            print(f"  No images in {img_dir} and no zip file found.")
+            print(f"  Run: cd data/flickr30k && unzip flickr30k-images.zip -d flickr30k_images/")
+            return None
 
     image_paths: list[str] = []
     captions: list[str] = []
-    for item in data["images"]:
-        if item["split"] not in ("train", "restval"):
-            continue
-        img_path = str(img_dir / item["filename"])
-        if not Path(img_path).exists():
-            continue
-        sents = [s["raw"] for s in item["sentences"]][:N_CAPTIONS]
-        while len(sents) < N_CAPTIONS:
-            sents.append(sents[0])
-        image_paths.append(img_path)
-        captions.extend(sents)
+    with open(csv_file, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row["split"] != "train":
+                continue
+            img_path = str(img_dir / row["filename"])
+            if not Path(img_path).exists():
+                continue
+            caps = ast.literal_eval(row["raw"])[:N_CAPTIONS]
+            while len(caps) < N_CAPTIONS:
+                caps.append(caps[0])
+            image_paths.append(img_path)
+            captions.extend(caps)
 
-    print(f"Flickr30K train+restval: {len(image_paths)} images, {len(captions)} captions")
+    print(f"Flickr30K train: {len(image_paths)} images, {len(captions)} captions")
     assert len(captions) == len(image_paths) * N_CAPTIONS
     return image_paths, captions
 

@@ -1,7 +1,7 @@
 # E1: Performance vs. embedding dimension
 datasets:
   - coco
-  # flickr30k: re-enable after placing images in data/flickr30k/flickr30k_images/
+  - flickr30k
 
 n_captions:
   coco: 5
