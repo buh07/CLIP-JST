@@ -1,0 +1,7 @@
+torch>=2.0
+transformers>=4.35
+scipy
+numpy
+faiss-gpu   # or faiss-cpu for CPU-only
+Pillow
+PyYAML

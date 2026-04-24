@@ -1,0 +1,27 @@
+# E5: Federated learning / privacy stress test
+dataset: coco
+
+cache_dir: data/cache
+image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
+output_dir: results/E5
+
+vision_dim: 768
+text_dim:   512
+embed_dim:  256
+mahal_rank: null   # full Mahalanobis for federated clients
+
+jl_eps:  0.1
+jl_seed: 42
+
+# Federated simulation settings.
+n_clients:    10
+local_epochs:  5
+
+# Centralized training settings.
+epochs:      50
+batch_size:  4096
+lr:          1.0e-3
+temperature: 0.07
+patience:    5
+seed:        0

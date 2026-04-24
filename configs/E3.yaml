@@ -1,0 +1,28 @@
+# E3: Width-complexity scaling
+cache_dir: data/cache
+image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
+output_dir: results/E3
+
+# Path to COCO instances annotations (for supercategory filtering).
+# Leave empty to skip concept-subset experiments.
+instances_annotations: ""   # e.g. data/coco/annotations/instances_train2017.json
+
+# Supercategories to test (requires instances_annotations).
+supercategories: [animal, vehicle, person, food, furniture]
+
+# Caption diversity: how many captions per image to use.
+n_captions_list: [1, 2, 5]
+n_cap_total: 5
+
+embed_dims: [32, 64, 128, 256, 512]
+
+jl_eps:  0.1
+jl_seed: 42
+
+epochs:      30
+batch_size:  2048
+lr:          1.0e-3
+temperature: 0.07
+patience:    5
+seed:        0

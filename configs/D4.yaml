@@ -1,0 +1,37 @@
+# D4: Backbone generalization
+dataset: coco
+
+cache_dir: data/cache
+output_dir: results/D4
+
+# JSON manifest with {"image_paths": [...], "texts": [...]} for the dataset.
+manifest_file: data/coco/manifest.json
+
+embed_dims: [128, 256]
+jl_eps:  0.1
+jl_seed: 42
+
+epochs:      30
+batch_size:  2048
+lr:          1.0e-3
+temperature: 0.07
+patience:    5
+seed:        0
+
+backbones:
+  vit_l14:
+    type: clip
+    hf_name: openai/clip-vit-large-patch14
+    vision_dim: 1024
+    text_dim:   768
+  dinov2_bge:
+    type: dinov2_bge
+    dino_model: facebook/dinov2-large
+    bge_model:  BAAI/bge-large-en-v1.5
+    vision_dim: 1024
+    text_dim:   1024
+  clap:
+    type: clap
+    clap_model: laion/clap-htsat-unfused
+    vision_dim: 512
+    text_dim:   512

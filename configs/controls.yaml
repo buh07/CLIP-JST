@@ -1,0 +1,22 @@
+# Negative controls and sanity checks (Section 5.5)
+dataset: coco
+
+cache_dir: data/cache
+image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
+output_dir: results/controls
+
+vision_dim: 768
+text_dim:   512
+embed_dim:  256
+
+jl_eps:  0.1
+jl_seed: 42
+jl_seeds: [42, 43, 44, 45, 46]   # For seed-variability control
+
+epochs:      50
+batch_size:  4096
+lr:          1.0e-3
+temperature: 0.07
+patience:    5
+seed:        0

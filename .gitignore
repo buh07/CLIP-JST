@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/
+
+# All data — never push datasets or caches
+data/
+
+# Experiment results and model checkpoints
+results/
+
+# Tool and IDE configs
+.claude/
+.vscode/
+.idea/
+.env

@@ -1,0 +1,17 @@
+# D2: Class-conditional JL distortion
+# Features: CLIP text encoding of NUS-WIDE Flickr tags (no raw images available).
+# Both image_cache_file and text_cache_file point to the same tag-based features;
+# distortion-per-class measurement remains valid on the tag feature space.
+dataset: nuswide
+
+cache_dir: data/cache
+image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
+labels_file:      labels.pt   # (N_train, 81) binary multi-hot
+
+output_dir: results/D2
+
+embed_dims:   [64, 128, 256, 512]
+jl_eps_list:  [0.05, 0.1, 0.2]
+jl_seed:      42
+seed:         0

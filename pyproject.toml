@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "clip-jst"
+version = "0.1.0"
+description = "Width-Adaptive JL Projections for Cross-Modal Representation Learning"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0",
+    "transformers>=4.35",
+    "scipy",
+    "numpy",
+    "Pillow",
+    "PyYAML",
+]
+
+[project.optional-dependencies]
+gpu  = ["faiss-gpu"]
+cpu  = ["faiss-cpu"]
+dev  = ["pytest", "black", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["models*", "training*", "eval*", "data*", "theory*", "utils*", "experiments*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

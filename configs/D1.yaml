@@ -1,0 +1,17 @@
+# D1: Expansion/shrinkage decomposition
+# Requires E1 to have been run first to generate checkpoints.
+
+output_dir: results/D1
+
+vision_dim: 768
+text_dim:   512
+embed_dim:  256
+mahal_rank: null
+
+jl_eps:  0.1
+jl_seed: 42
+seed:    0
+
+# Paths to E1 checkpoints.
+clip_head_checkpoint:  results/E1/coco/clip_head_m256
+jl_mahal_checkpoint:   results/E1/coco/jl_mahal_m256_rfull
