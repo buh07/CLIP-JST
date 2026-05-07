@@ -3,7 +3,7 @@
 
 output_dir: results/D1
 
-vision_dim: 512
+vision_dim: 768
 text_dim:   512
 embed_dim:  256
 mahal_rank: null
@@ -13,5 +13,5 @@ jl_seed: 42
 seed:    0
 
 # Paths to E1 checkpoints.
-clip_head_checkpoint:  results/E1/coco/clip_head_m256
-jl_mahal_checkpoint:   results/E1/coco/jl_mahal_m256_rfull
+clip_head_checkpoint:  results/E1/coco/clip_head_m256/seed0
+jl_mahal_checkpoint:   results/E1/coco/jl_mahal_m256_rfull/seed0

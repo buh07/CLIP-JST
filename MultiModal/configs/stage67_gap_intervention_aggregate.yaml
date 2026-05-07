@@ -1,0 +1,12 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/theory_backing_suite/stage67_gap_intervention_aggregate
+stage66_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/theory_backing_suite/stage66_gap_intervention/stage66_gap_intervention_pilot/stage66_gap_intervention_pilot_results.json
+baseline_stage44_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage44_zero_shot_baseline_control/stage44_zero_shot_baseline_control_results.json
+method: modular_shared_jl
+embed_dims:
+- 256
+- 512
+metrics:
+- av_ia_avg_R
+- av_at_avg_R
+- combined_avg_R

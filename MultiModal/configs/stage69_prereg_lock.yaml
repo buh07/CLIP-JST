@@ -1,0 +1,23 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite
+prereg_dir: /jumbo/lisp/f004ndc/CLIP JST/paper/prereg
+stage43_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/aggregate/stage43_bottleneck_oos_validation/stage43_bottleneck_oos_validation.json
+
+speechcoco_dataset: mteb/SpeechCoco
+speechcoco_train_max_examples: 120000
+speechcoco_phase_b_val_examples: 20000
+speechcoco_eval_test_examples: 5000
+speechcoco_sample_seed: 69001
+speechcoco_eval_seed: 69002
+phase_b_split_seed: 69003
+strict_disjoint: true
+
+methods: [modular_shared_jl, modular_separate_jl, audio_linear_probe]
+embed_dims: [64, 128, 256, 512]
+seeds: [0, 1, 2, 3, 4]
+
+cell_mean_r_min: 0.85
+cell_mean_mae_max: 0.01
+max_retries_per_failed_unit: 2
+create_local_tag: true
+tag_name: prereg-stage69-v1

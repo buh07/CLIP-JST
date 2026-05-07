@@ -1,0 +1,26 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+
+privacy_split: "train_restval"
+max_samples: 50000
+
+privacy_embed_dims: [256]
+privacy_ps: [0.0, 0.1, 0.5, 1.0]
+alpha: 1.0
+beta: 1.0
+jl_eps: 0.1
+jl_seed: 42
+mask_seed_base: 1000
+
+attack_train_frac: 0.8
+attack_hidden_dim: 1024
+attack_epochs: 80
+attack_lr: 0.001
+attack_batch_size: 1024
+
+seeds: [0, 1, 2]
+device: "cuda"

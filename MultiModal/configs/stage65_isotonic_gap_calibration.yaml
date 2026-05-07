@@ -1,0 +1,11 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/theory_backing_suite/stage65_isotonic_gap_calibration
+stage39_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/stage39_s44_coco/stage39_modality_gap_linear_vs_jl/stage39_modality_gap_linear_vs_jl_results.json
+methods:
+- audio_linear_probe
+- modular_shared_jl
+- modular_separate_jl
+- modular_hybrid_it_jl
+- modular_hybrid_at_jl
+kfold: 5
+cv_seed: 2026

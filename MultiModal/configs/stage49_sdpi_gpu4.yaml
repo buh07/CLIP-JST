@@ -1,0 +1,22 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/sdpi_aggressive_suite"
+stage48_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/sdpi_aggressive_suite/stage48_sdpi_embed_export/stage48_sdpi_embed_export_results.json"
+source_groups: ["stage25", "stage29"]
+embed_dims: [64, 128, 256, 512]
+seeds: [0, 1, 2, 3, 4]
+methods:
+  - modular_shared_jl
+  - modular_separate_jl
+  - modular_hybrid_it_jl
+  - modular_hybrid_at_jl
+  - audio_linear_probe
+  - audio_text_lora_proxy
+mi_pca_dim: 32
+pca_mode: "joint_pair"
+ksg_k: 5
+mi_subsample_n: 2000
+bootstrap_n: 1000
+perm_n: 1000
+ridge_lambda: 0.001
+cov_shrinkage: "ledoit_wolf"
+analysis_seed: 2026

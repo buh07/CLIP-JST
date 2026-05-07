@@ -29,10 +29,13 @@ def extract_and_cache(
     backbone_name: str = "openai/clip-vit-base-patch32",
     device: str = "cuda",
     batch_size: int = 256,
+    use_projection: bool = False,
 ) -> tuple[Path, Path]:
     """
     Single-caption extraction: len(image_paths) == len(captions).
     Returns (image_cache_path, text_cache_path). Skips if cache exists.
+    use_projection=False (default): raw pooler_output features (d_v=768, d_t=512 for ViT-B/32).
+    use_projection=True: CLIP-projected aligned features (d=512).
     """
     assert len(image_paths) == len(captions), (
         f"image_paths ({len(image_paths)}) and captions ({len(captions)}) must have equal length. "
@@ -45,7 +48,7 @@ def extract_and_cache(
 
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
-    tag = backbone_name.replace("/", "_")
+    tag = backbone_name.replace("/", "_") + ("" if use_projection else "_raw")
     img_path = cache_dir / f"image_feats_{tag}.pt"
     txt_path = cache_dir / f"text_feats_{tag}.pt"
 
@@ -65,7 +68,8 @@ def extract_and_cache(
             images = [Image.open(p).convert("RGB") for p in image_paths[i:i+batch_size]]
             inputs = processor(images=images, return_tensors="pt").to(device)
             vision_out = model.vision_model(pixel_values=inputs["pixel_values"])
-            img_feats.append(model.visual_projection(vision_out.pooler_output).cpu())
+            feat = model.visual_projection(vision_out.pooler_output) if use_projection else vision_out.pooler_output
+            img_feats.append(feat.cpu())
             if (i // batch_size) % 10 == 0:
                 print(f"  images {i}/{len(image_paths)}")
 
@@ -78,7 +82,8 @@ def extract_and_cache(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs.get("attention_mask"),
             )
-            txt_feats.append(model.text_projection(text_out.pooler_output).cpu())
+            feat = model.text_projection(text_out.pooler_output) if use_projection else text_out.pooler_output
+            txt_feats.append(feat.cpu())
             if (i // batch_size) % 10 == 0:
                 print(f"  texts {i}/{len(captions)}")
 
@@ -96,6 +101,7 @@ def extract_and_cache_multi_caption(
     backbone_name: str = "openai/clip-vit-base-patch32",
     device: str = "cuda",
     batch_size: int = 256,
+    use_projection: bool = False,
 ) -> tuple[Path, Path]:
     """
     Multi-caption extraction for COCO/Flickr30K.
@@ -106,6 +112,9 @@ def extract_and_cache_multi_caption(
     Saves:
       image_feats_{tag}.pt : (N, d_v)
       text_feats_{tag}.pt  : (N * n_captions, d_t)
+
+    use_projection=False (default): raw pooler_output features.
+    use_projection=True: CLIP-projected aligned features.
     """
     N = len(image_paths)
     assert len(captions) == N * n_captions, (
@@ -119,7 +128,7 @@ def extract_and_cache_multi_caption(
 
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
-    tag = backbone_name.replace("/", "_")
+    tag = backbone_name.replace("/", "_") + ("" if use_projection else "_raw")
     img_path = cache_dir / f"image_feats_{tag}.pt"
     txt_path = cache_dir / f"text_feats_{tag}.pt"
 
@@ -142,7 +151,8 @@ def extract_and_cache_multi_caption(
             images = [Image.open(p).convert("RGB") for p in image_paths[i:i+batch_size]]
             inputs = processor(images=images, return_tensors="pt").to(device)
             vision_out = model.vision_model(pixel_values=inputs["pixel_values"])
-            img_feats.append(model.visual_projection(vision_out.pooler_output).cpu())
+            feat = model.visual_projection(vision_out.pooler_output) if use_projection else vision_out.pooler_output
+            img_feats.append(feat.cpu())
             if (i // batch_size) % 10 == 0:
                 print(f"  images {i}/{N}")
 
@@ -155,7 +165,8 @@ def extract_and_cache_multi_caption(
                 input_ids=inputs["input_ids"],
                 attention_mask=inputs.get("attention_mask"),
             )
-            txt_feats.append(model.text_projection(text_out.pooler_output).cpu())
+            feat = model.text_projection(text_out.pooler_output) if use_projection else text_out.pooler_output
+            txt_feats.append(feat.cpu())
             if (i // batch_size) % 10 == 0:
                 print(f"  captions {i}/{len(captions)}")
 

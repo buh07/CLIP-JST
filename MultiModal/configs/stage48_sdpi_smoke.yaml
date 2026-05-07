@@ -1,0 +1,18 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/sdpi_aggressive_suite"
+manifest_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/sdpi_aggressive_suite/stage47_sdpi_manifest/stage47_manifest.json"
+av_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/caches/audiocaps_av_clap_htsat_unfused"
+av_test_split: "test"
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+jl_eps: 0.1
+jl_seed: 42
+embed_dims: [64]
+seeds: [0]
+methods: [modular_shared_jl]
+store_dtype: "float16"
+parity_tol: 1e-4
+device: "cuda"
+eval_batch_size: 2048

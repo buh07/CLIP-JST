@@ -1,0 +1,12 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/aggregate"
+baseline_method: modular_shared_jl
+stage34_shard_roots:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu0"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu1"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu2"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu3"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu4"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu5"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu6"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu7"

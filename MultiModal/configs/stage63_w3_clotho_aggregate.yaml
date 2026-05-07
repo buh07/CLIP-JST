@@ -1,0 +1,11 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/aggregate
+stage62_shard_roots:
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu0
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu1
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu2
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu3
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu4
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu5
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu6
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu7
+baseline_method: modular_shared_jl

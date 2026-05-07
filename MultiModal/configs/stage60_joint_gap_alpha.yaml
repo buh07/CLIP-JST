@@ -1,0 +1,5 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/post_w3_sequence"
+joint_stage39_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/post_w3_sequence/stage39_joint_gap/stage39_modality_gap_linear_vs_jl/stage39_modality_gap_linear_vs_jl_results.json"
+methods: ["joint_shared_jl", "joint_clip_head"]
+

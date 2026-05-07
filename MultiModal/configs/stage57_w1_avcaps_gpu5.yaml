@@ -1,0 +1,37 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w1_second_triple_avcaps/split/gpu5
+avcaps_cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/caches/avcaps_av
+build_avcaps_cache_if_missing: false
+avcaps_dataset: TUT-ARG/AVCaps
+avcaps_target_sr: 48000
+avcaps_audio_batch_size: 32
+avcaps_image_batch_size: 32
+avcaps_text_batch_size: 128
+avcaps_max_examples_per_split: null
+phase_order: it_then_at
+clap_model: laion/clap-htsat-unfused
+clip_backbone: openai/clip-vit-base-patch32
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+seeds: [0,1,2,3,4]
+embed_dims: [512]
+methods: [modular_shared_jl]
+baseline_method: modular_shared_jl
+av_train_split: train
+av_val_split: validation
+av_test_split: test
+epochs_phase_a: 40
+epochs_phase_b: 40
+warmup_phase_a: 4
+patience_phase_a: 8
+patience_phase_b: 8
+batch_size: 512
+eval_batch_size: 1024
+num_workers: 4
+lr_phase_a: 0.001
+lr_phase_b: 0.001
+jl_eps: 0.1
+jl_seed: 42
+device: cuda

@@ -1,0 +1,6 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/aggregate"
+stage25_shard_roots:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu4"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu5"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu6"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu7"

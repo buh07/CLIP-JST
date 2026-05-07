@@ -1,0 +1,33 @@
+# E7: JLT-in-projection-loop pilot on frozen raw CLIP features.
+# Tests whether data-adaptive JL-style projection heads close the gap to CLIP heads.
+
+datasets:
+  - coco
+  - flickr30k
+
+n_captions:
+  coco: 5
+  flickr30k: 5
+
+cache_dir: data/cache
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32_raw.pt
+output_dir: results/E7
+
+vision_dim: 768
+text_dim:   512
+
+embed_dims: [64, 128, 256, 512]
+
+jl_eps:  0.1
+jl_seed: 42
+
+orth_reg: 1.0e-3
+
+epochs:        100
+warmup_epochs: 10
+batch_size:    4096
+lr:            1.0e-3
+temperature:   0.07
+patience:      10
+seeds:         [0, 1, 2]

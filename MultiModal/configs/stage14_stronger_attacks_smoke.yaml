@@ -1,0 +1,36 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_extension_smoke"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+vision_dim: 768
+text_dim: 512
+shared_raw_dim: 768
+embed_dim: 64
+jl_eps: 0.1
+jl_seed: 42
+methods:
+  - id: "mask_concat"
+    kind: "mask_concat"
+    alpha: 1.0
+    beta: 1.0
+    p: 0.5
+    mask_seed: 0
+  - id: "clip_head"
+    kind: "clip_head"
+partitions: ["iid"]
+privacy_split: "train"
+max_probe_samples: 512
+attack_train_frac: 0.8
+attack_hidden_dim: 256
+attack_epochs: 2
+attack_lr: 0.001
+attack_batch_size: 128
+iterative_steps: 5
+iterative_lr: 0.05
+iterative_prior_weight: 0.001
+iterative_batch_size: 64
+baseline_method: "mask_concat"
+seeds: [0]
+eval_batch_size: 1024
+device: "cuda"

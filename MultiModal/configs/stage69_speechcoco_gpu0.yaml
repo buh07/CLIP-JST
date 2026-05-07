@@ -1,0 +1,83 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu0
+speechcoco_cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/caches/speechcoco_av
+cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file: text_feats_openai_clip-vit-base-patch32_raw.pt
+speechcoco_dataset: mteb/SpeechCoco
+speechcoco_train_max_examples: 120000
+speechcoco_phase_b_val_examples: 20000
+speechcoco_eval_test_examples: 5000
+speechcoco_sample_seed: 69001
+speechcoco_eval_seed: 69002
+phase_b_split_seed: 69003
+strict_disjoint: true
+speechcoco_force_rebuild: false
+speechcoco_target_sr: 48000
+speechcoco_audio_batch_size: 32
+speechcoco_image_batch_size: 32
+speechcoco_text_batch_size: 128
+speech_train_split: phase_b_train
+speech_val_split: phase_b_val
+speech_eval_split: eval_test
+phase_order: it_then_at
+clap_model: laion/clap-htsat-unfused
+clip_backbone: openai/clip-vit-base-patch32
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+seeds:
+- 0
+- 1
+- 2
+- 3
+- 4
+embed_dims:
+- 64
+- 128
+- 256
+- 512
+methods:
+- modular_shared_jl
+- modular_separate_jl
+- audio_linear_probe
+baseline_method: modular_shared_jl
+coco_train_split: train_restval
+coco_val_split: val
+epochs_phase_a: 40
+epochs_phase_b: 40
+warmup_phase_a: 4
+patience_phase_a: 8
+patience_phase_b: 8
+batch_size: 512
+eval_batch_size: 1024
+num_workers: 4
+lr_phase_a: 0.001
+lr_phase_b: 0.001
+jl_eps: 0.1
+jl_seed: 42
+device: cuda
+speechcoco_hf_cache_dir: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/caches/hf_speechcoco
+run_units:
+- embed_dim: 64
+  method: modular_separate_jl
+  seed: 4
+- embed_dim: 128
+  method: audio_linear_probe
+  seed: 3
+- embed_dim: 128
+  method: modular_separate_jl
+  seed: 0
+- embed_dim: 256
+  method: audio_linear_probe
+  seed: 0
+- embed_dim: 256
+  method: modular_shared_jl
+  seed: 2
+- embed_dim: 512
+  method: modular_separate_jl
+  seed: 3
+- embed_dim: 512
+  method: modular_shared_jl
+  seed: 0

@@ -1,0 +1,25 @@
+dataset: coco
+cache_dir: data/cache_smoke
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file: text_feats_openai_clip-vit-base-patch32_raw.pt
+output_dir: results/rerun_fix_20260429/E5
+vision_dim: 768
+text_dim: 512
+embed_dim: 256
+mahal_rank: null
+jl_eps: 0.1
+jl_seed: 42
+n_clients: 5
+n_rounds: 20
+local_epochs: 3
+embed_dims_privacy:
+- 64
+epochs: 1
+warmup_epochs: 10
+batch_size: 4096
+lr: 0.001
+temperature: 0.07
+patience: 60
+seeds:
+- 0
+federated_rounds: 1

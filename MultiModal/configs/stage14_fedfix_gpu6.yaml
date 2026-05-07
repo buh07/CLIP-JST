@@ -1,0 +1,49 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage14_fedfix_split/gpu6
+stage13_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage13_fedfix_split/gpu6
+cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches
+
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file: text_feats_openai_clip-vit-base-patch32_raw.pt
+
+vision_dim: 768
+text_dim: 512
+shared_raw_dim: 768
+embed_dim: 256
+jl_eps: 0.1
+jl_seed: 42
+pretrained_clip_model: openai/clip-vit-base-patch32
+
+partitions: [iid, dir_a1p0, dir_a0p5, dir_a0p1]
+methods:
+  - id: random_jl_mahal
+    kind: random_jl_mahal
+  - id: clip_head
+    kind: clip_head
+  - id: fedclip_pretrained
+    kind: fedclip_pretrained
+    adapter_rank: 16
+    pretrained_model_name: openai/clip-vit-base-patch32
+    pretrained_proj_seed: 42
+  - id: mahal_only_bottleneck
+    kind: mahal_only_bottleneck
+
+method_filter: [fedclip_pretrained]
+
+seeds: [0, 1, 2]
+privacy_split: train_restval
+max_probe_samples: 4000
+probe_sample_seed_offset: 15485863
+attack_train_frac: 0.8
+attack_hidden_dim: 768
+attack_epochs: 80
+attack_lr: 0.001
+attack_batch_size: 1024
+iterative_steps: 250
+iterative_lr: 0.05
+iterative_prior_weight: 0.001
+iterative_batch_size: 256
+
+eval_batch_size: 4096
+baseline_method: clip_head
+device: cuda

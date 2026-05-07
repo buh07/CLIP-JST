@@ -2,11 +2,11 @@
 dataset: coco
 
 cache_dir: data/cache
-image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
-text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32_raw.pt
 output_dir: results/E5
 
-vision_dim: 512
+vision_dim: 768
 text_dim:   512
 embed_dim:  256
 mahal_rank: null   # full Mahalanobis for federated clients
@@ -15,13 +15,21 @@ jl_eps:  0.1
 jl_seed: 42
 
 # Federated simulation settings.
-n_clients:    10
-local_epochs:  5
+n_clients:    5       # was 10; more data per client (~23K pairs each)
+n_rounds:     20      # FedAvg global rounds (was implicit 1)
+local_epochs: 3       # local epochs per round (3×20=60 effective epochs)
+
+# Privacy curve: measure inversion error at each of these dimensions.
+embed_dims_privacy: [64, 128, 256, 512]
 
 # Centralized training settings.
-epochs:      50
-batch_size:  4096
-lr:          1.0e-3
-temperature: 0.07
-patience:    5
-seed:        0
+# epochs matched to federated budget: n_rounds=20 × local_epochs=3 = 60.
+# patience=60 disables early stopping so both centralized and federated
+# train for the same number of effective passes — apples-to-apples comparison.
+epochs:        60
+warmup_epochs: 10
+batch_size:    4096
+lr:            1.0e-3
+temperature:   0.07
+patience:      60
+seeds:         [0, 1, 2]

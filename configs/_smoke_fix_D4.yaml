@@ -1,0 +1,21 @@
+dataset: coco
+cache_dir: data/cache
+output_dir: results/rerun_fix_20260429/D4
+manifest_file: data/coco/manifest.json
+embed_dims:
+- 128
+jl_eps: 0.1
+jl_seed: 42
+epochs: 1
+batch_size: 32
+lr: 0.001
+temperature: 0.07
+patience: 5
+seed: 0
+backbones:
+  clap:
+    type: clap
+    clap_model: laion/clap-htsat-unfused
+    input_key: audio_paths
+    vision_dim: 512
+    text_dim: 512

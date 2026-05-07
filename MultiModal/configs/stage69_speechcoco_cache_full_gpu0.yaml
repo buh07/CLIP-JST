@@ -1,0 +1,22 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/cache_full_prebuild
+speechcoco_cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/caches/speechcoco_av
+cache_only: true
+speechcoco_dataset: mteb/SpeechCoco
+speechcoco_train_max_examples: 120000
+speechcoco_phase_b_val_examples: 20000
+speechcoco_eval_test_examples: 5000
+speechcoco_sample_seed: 69001
+speechcoco_eval_seed: 69002
+phase_b_split_seed: 69003
+strict_disjoint: true
+speechcoco_force_rebuild: false
+speechcoco_target_sr: 48000
+speechcoco_audio_batch_size: 32
+speechcoco_image_batch_size: 32
+speechcoco_text_batch_size: 128
+clap_model: laion/clap-htsat-unfused
+clip_backbone: openai/clip-vit-base-patch32
+shared_raw_dim: 768
+device: cuda
+speechcoco_hf_cache_dir: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/caches/hf_speechcoco

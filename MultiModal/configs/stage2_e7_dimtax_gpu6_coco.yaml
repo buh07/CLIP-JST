@@ -1,0 +1,29 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage2_dimtax_split/gpu6"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+
+datasets: ["coco"]
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+
+vision_dim: 768
+text_dim: 512
+embed_dims: [128, 256, 512, 1024, 2048]
+
+epochs: 80
+warmup_epochs: 8
+patience: 10
+batch_size: 2048
+eval_batch_size: 2048
+num_workers: 4
+lr: 0.001
+
+jl_eps: 0.1
+jl_seed: 42
+allow_dim_expansion: true
+
+method_filter:
+  - random_jl_mahal
+
+seeds: [0, 1, 2, 3, 4]
+device: "cuda"

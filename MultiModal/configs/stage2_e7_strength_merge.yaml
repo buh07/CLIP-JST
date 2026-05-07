@@ -1,0 +1,5 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage2_strength
+shard_output_roots:
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage2_strength_split/gpu4
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage2_strength_split/gpu5
+baseline_method: clip_head

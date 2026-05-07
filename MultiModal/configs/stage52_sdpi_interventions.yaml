@@ -1,0 +1,3 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/sdpi_aggressive_suite"
+stage50_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/sdpi_aggressive_suite/stage50_sdpi_inequality/stage50_sdpi_inequality.json"

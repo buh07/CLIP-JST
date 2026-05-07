@@ -1,0 +1,10 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite"
+seed: 0
+
+device: "cuda"
+n: 384
+latent_dim: 64
+image_dim: 768
+text_dim: 512
+audio_dim: 512
+batch_size: 96

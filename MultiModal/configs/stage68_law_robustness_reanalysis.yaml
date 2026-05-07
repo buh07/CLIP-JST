@@ -1,0 +1,18 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/theory_backing_suite/stage68_law_robustness_reanalysis"
+
+stage36_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/stage36_s44_coco/stage36_bottleneck_decomposition/stage36_bottleneck_decomposition.json"
+stage43_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/aggregate/stage43_bottleneck_oos_validation/stage43_bottleneck_oos_validation.json"
+stage58_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/aggregate/stage58_second_triple_aggregate.json"
+stage56_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/aggregate/stage56_wavcaps_holdout_aggregate.json"
+stage63_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/aggregate/stage63_clotho_intermediate_aggregate.json"
+stage47_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage47_identity_ablation/stage47_identity_ablation/stage47_identity_ablation_results.json"
+stage44_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage44_zero_shot_baseline_control/stage44_zero_shot_baseline_control_results.json"
+w13_stage55_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/w13_wavcaps_5th_condition/stage55_wavcaps_holdout_retrain/stage55_wavcaps_holdout_retrain_results.json"
+w14_primary_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/w14_phase_a_ablation/stage29_cc3m_phaseA_modular/stage29_cc3m_phaseA_modular_results.json"
+w14_cc3m_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage29_cc3m_phaseA_modular/stage29_cc3m_phaseA_modular_results.json"
+
+holdout_source_id: "stage31_wavcaps_scaling"
+kfold: 5
+cv_seed: 2026
+powerlaw_bootstrap_n: 1000

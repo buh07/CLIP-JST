@@ -1,0 +1,25 @@
+# E6: Convergence analysis — trains CLIP head and JL+Mahal to full convergence
+# to determine whether the performance gap is a training problem or capacity limit.
+dataset: coco
+n_captions: 5
+
+cache_dir: data/cache
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32_raw.pt
+output_dir: results/E6
+
+vision_dim: 768
+text_dim:   512
+embed_dim:  256
+mahal_rank: null   # full Mahalanobis
+
+jl_eps:  0.1
+jl_seed: 42
+
+epochs:        200
+warmup_epochs: 20
+patience:      200    # no early stopping — need full convergence curves
+eval_every:    10     # evaluate on test split every N epochs
+batch_size:    4096
+lr:            1.0e-3
+seeds:         [0, 1, 2]

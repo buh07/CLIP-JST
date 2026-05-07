@@ -72,10 +72,11 @@ class LowRankMahalanobis(nn.Module):
         super().__init__()
         self.dim = dim
         self.rank = rank
-        self.L = nn.Parameter(torch.zeros(rank, dim))
-        with torch.no_grad():
-            r = min(rank, dim)
-            self.L[:r, :r] = torch.eye(r)
+        self.L = nn.Parameter(torch.empty(rank, dim))
+        # Initialize so E[L^T L]_{ii} = 1 for all i — equal energy across all
+        # output dimensions. The old eye() init zeroed dims rank+1..dim, causing
+        # near-zero gradients for those dimensions throughout training.
+        nn.init.normal_(self.L, std=1.0 / math.sqrt(rank))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (..., dim) -> (..., dim)  via  L^T (L x)

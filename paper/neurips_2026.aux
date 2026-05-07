@@ -1,0 +1,210 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{radford2021clip}
+\citation{jia2021align}
+\citation{girdhar2023imagebind}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{The text-anchored protocol.}{1}{section*.2}\protected@file@percent }
+\citation{guzhov2022audioclip}
+\citation{girdhar2023imagebind}
+\citation{jia2021align}
+\citation{li2022blip}
+\citation{zhu2023languagebind}
+\citation{sung2022vl}
+\citation{elizalde2022clap}
+\citation{johnson1984jl}
+\citation{kane2014sparser}
+\@writefile{toc}{\contentsline {paragraph}{ImageBind and the anchoring choice.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Joint cross-modal training.}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Text as a cross-modal anchor.}{2}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Modular and continual multimodal learning.}{2}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Random projection and geometric alignment.}{2}{section*.7}\protected@file@percent }
+\citation{kane2014sparser}
+\citation{kim2019audiocaps}
+\citation{mei2023wavcaps}
+\citation{elizalde2022clap}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Two-phase text-anchored protocol. Phase~A trains image and text heads ($f_v$, $f_t$) jointly on COCO with InfoNCE, then freezes them. Phase~B trains an audio head ($f_a$) on AudioCaps using the frozen $f_t$ as a semantic bridge---audio and image are never paired during training. At inference, $f_v$ and $f_a$ are composed directly for zero-shot image-audio retrieval. Frozen components are shown with dashed borders.}}{3}{figure.caption.8}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:architecture}{{1}{3}{Two-phase text-anchored protocol. Phase~A trains image and text heads ($f_v$, $f_t$) jointly on COCO with InfoNCE, then freezes them. Phase~B trains an audio head ($f_a$) on AudioCaps using the frozen $f_t$ as a semantic bridge---audio and image are never paired during training. At inference, $f_v$ and $f_a$ are composed directly for zero-shot image-audio retrieval. Frozen components are shown with dashed borders}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Protocol and Experimental Setup}{3}{section.3}\protected@file@percent }
+\newlabel{sec:setup}{{3}{3}{Protocol and Experimental Setup}{section.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Two-phase text-anchored training.}{3}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Projection designs.}{3}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Datasets and features.}{3}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Evaluation metrics.}{3}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Reproducibility.}{3}{section*.13}\protected@file@percent }
+\citation{girdhar2023imagebind}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Zero-shot image-audio retrieval ($\overline  {R}_\mathrm  {ia}$) and audio-text retrieval ($\overline  {R}_\mathrm  {at}$) at $m=512$. Chance $\overline  {R}_\mathrm  {ia}=0.0011$. \emph  {Modular rows} use only audio-text data in Phase B; the LoRA Proxy additionally initialises its weights from the frozen text head (see $^\ddagger $). \emph  {Joint rows} ($^\dag  $) are trained with image-audio-text data. Joint CLAP Head (5-seed replication) uses the CLAP audio encoder and is the encoder-matched joint reference. Joint CLIP Head and Joint Shared JL use an audio projection head with CLIP-identical architecture (not a CLIP-trained audio encoder); their higher $\overline  {R}_\mathrm  {ia}$ is partly explained by this encoder difference (see text). \emph  {ImageBind} uses ViT-H/14 with millions of direct image-audio pairs and is an absolute scale reference only. All modular rows use COCO Phase A. Full 1K-split comparisons in Appendix~\ref {app:1k_split}.}}{4}{table.caption.14}\protected@file@percent }
+\newlabel{tab:main}{{1}{4}{Zero-shot image-audio retrieval ($\avgR _\mathrm {ia}$) and audio-text retrieval ($\avgR _\mathrm {at}$) at $m=512$. Chance $\avgR _\mathrm {ia}=0.0011$. \emph {Modular rows} use only audio-text data in Phase B; the LoRA Proxy additionally initialises its weights from the frozen text head (see $^\ddagger $). \emph {Joint rows} ($^\dag $) are trained with image-audio-text data. Joint CLAP Head (5-seed replication) uses the CLAP audio encoder and is the encoder-matched joint reference. Joint CLIP Head and Joint Shared JL use an audio projection head with CLIP-identical architecture (not a CLIP-trained audio encoder); their higher $\avgR _\mathrm {ia}$ is partly explained by this encoder difference (see text). \emph {ImageBind} uses ViT-H/14 with millions of direct image-audio pairs and is an absolute scale reference only. All modular rows use COCO Phase A. Full 1K-split comparisons in Appendix~\ref {app:1k_split}}{table.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Emergence and causal controls. Full Phase~B training reaches 6--31$\times $ chance, while identity and shuffled-caption controls collapse to chance. Full condition-level values are in Appendix~\ref {app:emergence_controls}.}}{4}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:emergence}{{2}{4}{Emergence and causal controls. Full Phase~B training reaches 6--31$\times $ chance, while identity and shuffled-caption controls collapse to chance. Full condition-level values are in Appendix~\ref {app:emergence_controls}}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Transitivity Emerges from Text Anchoring}{4}{section.4}\protected@file@percent }
+\newlabel{sec:transitivity}{{4}{4}{Transitivity Emerges from Text Anchoring}{section.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{The LoRA anomaly.}{4}{section*.16}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Effect of projection type on image-audio transitivity at $m=512$. $\alpha $ is the transmission efficiency from the bottleneck theory (Section~\ref {sec:theory}), fitted on the primary experimental suite ($n=300$). Gap$_\mathrm  {ia}$ is the $\ell _2$ centroid gap between image and audio embeddings (centroid-gap analysis using COCO Phase A checkpoints). All rows use COCO Phase A checkpoints.}}{5}{table.caption.17}\protected@file@percent }
+\newlabel{tab:projtype}{{2}{5}{Effect of projection type on image-audio transitivity at $m=512$. $\alpha $ is the transmission efficiency from the bottleneck theory (Section~\ref {sec:theory}), fitted on the primary experimental suite ($n=300$). Gap$_\mathrm {ia}$ is the $\ell _2$ centroid gap between image and audio embeddings (centroid-gap analysis using COCO Phase A checkpoints). All rows use COCO Phase A checkpoints}{table.caption.17}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Image-audio centroid gap ($\ell _2$ distance between modality centroids in the shared $\mathbb  {R}^m$ space) across embedding dimensions. Smaller gap indicates better geometric alignment. Values from the centroid-gap analysis (COCO Phase A checkpoints, 5 seeds). ``Reduction'' is the percentage decrease from Shared JL to Linear Probe (LP).}}{5}{table.caption.18}\protected@file@percent }
+\newlabel{tab:centroid_gap_main}{{3}{5}{Image-audio centroid gap ($\ell _2$ distance between modality centroids in the shared $\mathbb {R}^m$ space) across embedding dimensions. Smaller gap indicates better geometric alignment. Values from the centroid-gap analysis (COCO Phase A checkpoints, 5 seeds). ``Reduction'' is the percentage decrease from Shared JL to Linear Probe (LP)}{table.caption.18}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}What Determines Transitivity Quality?}{5}{section.5}\protected@file@percent }
+\newlabel{sec:ablations}{{5}{5}{What Determines Transitivity Quality?}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Projection Type}{5}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:projtype}{{5.1}{5}{Projection Type}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Geometric mechanism.}{5}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Centroid gap predicts transmission efficiency.}{5}{section*.20}\protected@file@percent }
+\citation{kim2019audiocaps}
+\citation{mei2023wavcaps}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Effect of Phase B training data on retrieval quality (Shared JL, $m=512$). CLAP margin is measured on a held-out quality-diagnosis subset, not the full training split. WavCaps training uses the full 400K mixed-source set; quality diagnosis isolates the WavCaps/WavCaps real-caption subset because mixed-source metadata includes known QA-format corruption (Appendix~\ref {app:quality}).}}{6}{table.caption.21}\protected@file@percent }
+\newlabel{tab:dataquality}{{4}{6}{Effect of Phase B training data on retrieval quality (Shared JL, $m=512$). CLAP margin is measured on a held-out quality-diagnosis subset, not the full training split. WavCaps training uses the full 400K mixed-source set; quality diagnosis isolates the WavCaps/WavCaps real-caption subset because mixed-source metadata includes known QA-format corruption (Appendix~\ref {app:quality})}{table.caption.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Phase B Data Quality}{6}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:dataquality}{{5.2}{6}{Phase B Data Quality}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Bottleneck prediction.}{6}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Quality and source-match jointly dominate scale.}{6}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{WavCaps holdout retrain separates quality from split leakage.}{6}{section*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Dimension-conditional data-scale tradeoff.}{7}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Secondary ablations (moved to appendix).}{7}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}The Bottleneck Theory}{7}{section.6}\protected@file@percent }
+\newlabel{sec:theory}{{6}{7}{The Bottleneck Theory}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Motivating Frameworks and Empirical Fit}{7}{subsection.6.1}\protected@file@percent }
+\newlabel{eq:theory}{{1}{7}{Motivating Frameworks and Empirical Fit}{equation.6.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Theoretical motivation.}{7}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Out-of-sample predictive test.}{7}{section*.30}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Global and per-method fits of the bottleneck theory (Eq.~\ref {eq:theory}). $n$ is the number of (method, embedding dimension, seed) observations. Pearson $r$ within each method group is computed after marginalizing over the global $\alpha $. Fit uses the primary experimental suite ($n=300$; projection-type, WavCaps scaling, phase-order, and sharing-factorial conditions under COCO Phase~A). $^\ast $Within-source $r$ for LP uses ceiling variance across all seeds and dimensions. $^\ddagger $LoRA Proxy initialises from frozen text-head weights; its low within-method fit reflects initialisation-driven behaviour that is not fully captured by a single global $\alpha $.}}{8}{table.caption.28}\protected@file@percent }
+\newlabel{tab:theory}{{5}{8}{Global and per-method fits of the bottleneck theory (Eq.~\ref {eq:theory}). $n$ is the number of (method, embedding dimension, seed) observations. Pearson $r$ within each method group is computed after marginalizing over the global $\alpha $. Fit uses the primary experimental suite ($n=300$; projection-type, WavCaps scaling, phase-order, and sharing-factorial conditions under COCO Phase~A). $^\ast $Within-source $r$ for LP uses ceiling variance across all seeds and dimensions. $^\ddagger $LoRA Proxy initialises from frozen text-head weights; its low within-method fit reflects initialisation-driven behaviour that is not fully captured by a single global $\alpha $}{table.caption.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Observed vs.\ predicted $\overline  {R}_\mathrm  {ia}$ under Eq.~\ref {eq:theory} ($n=300$, $r=0.921$, $r^2=0.848$). Appendix~\ref {app:theory_details} gives full diagnostics.}}{8}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:bottleneck_scatter}{{3}{8}{Observed vs.\ predicted $\avgR _\mathrm {ia}$ under Eq.~\ref {eq:theory} ($n=300$, $r=0.921$, $r^2=0.848$). Appendix~\ref {app:theory_details} gives full diagnostics}{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {paragraph}{Residual diagnostics.}{8}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Theory scope: projection-family boundary.}{8}{section*.32}\protected@file@percent }
+\citation{elizalde2022clap}
+\bibstyle{plainnat}
+\bibdata{refs}
+\bibcite{drossos2019clotho}{{1}{2020}{{Drossos et~al.}}{{Drossos, Lipping, and Virtanen}}}
+\bibcite{elizalde2022clap}{{2}{2023}{{Elizalde et~al.}}{{Elizalde, Deshmukh, {Al Ismail}, and Wang}}}
+\bibcite{girdhar2023imagebind}{{3}{2023}{{Girdhar et~al.}}{{Girdhar, El-Nouby, Liu, Singh, Alwala, Joulin, and Misra}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion}{9}{section.7}\protected@file@percent }
+\newlabel{sec:discussion}{{7}{9}{Discussion}{section.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Limitations}{9}{section.8}\protected@file@percent }
+\newlabel{sec:limitations}{{8}{9}{Limitations}{section.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Absolute performance gap.}{9}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Generalization beyond the primary triple.}{9}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Bottleneck theory residuals.}{9}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Unexplained dimension-dependent sharing reversal.}{9}{section*.36}\protected@file@percent }
+\bibcite{guzhov2022audioclip}{{4}{2022}{{Guzhov et~al.}}{{Guzhov, Raue, Hees, and Dengel}}}
+\bibcite{jia2021align}{{5}{2021}{{Jia et~al.}}{{Jia, Yang, Xia, Chen, Parekh, Pham, Le, Sung, Li, and Duerig}}}
+\bibcite{johnson1984jl}{{6}{1984}{{Johnson and Lindenstrauss}}{{}}}
+\bibcite{kane2014sparser}{{7}{2014}{{Kane and Nelson}}{{}}}
+\bibcite{kim2019audiocaps}{{8}{2019}{{Kim et~al.}}{{Kim, Kim, Lee, and Kim}}}
+\bibcite{li2022blip}{{9}{2022}{{Li et~al.}}{{Li, Li, Xiong, and Hoi}}}
+\bibcite{mei2023wavcaps}{{10}{2024}{{Mei et~al.}}{{Mei, Meng, Liu, Kong, Ko, Zhao, Plumbley, Zou, and Wang}}}
+\bibcite{radford2021clip}{{11}{2021}{{Radford et~al.}}{{Radford, Kim, Hallacy, Ramesh, Goh, Agarwal, Sastry, Askell, Mishkin, Clark, Krueger, and Sutskever}}}
+\bibcite{sudarsanam2025avcaps}{{12}{2025}{{Sudarsanam et~al.}}{{Sudarsanam, Mart{\'i}n-Morat{\'o}, Hakala, and Virtanen}}}
+\bibcite{sung2022vl}{{13}{2022}{{Sung et~al.}}{{Sung, Cho, and Bansal}}}
+\bibcite{zhu2023languagebind}{{14}{2024}{{Zhu et~al.}}{{Zhu, Lin, Ning, Yan, Cui, Wang, Pang, Jiang, Zhang, Li, Zhang, Li, Liu, and Yuan}}}
+\@writefile{toc}{\contentsline {paragraph}{Method names.}{10}{section*.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Category-Level Semantic Precision}{10}{appendix.A}\protected@file@percent }
+\newlabel{app:cat}{{A}{10}{Category-Level Semantic Precision}{appendix.A}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Category-level precision at 1 ($\overline  {P\text  {@}1}_{\mathrm  {cat}}$) averaged over 20 coarse acoustic categories at $m=512$. Chance = 0.05 (1/20). i2a and a2i denote image-to-audio and audio-to-image precision respectively.}}{11}{table.caption.39}\protected@file@percent }
+\newlabel{tab:cat}{{6}{11}{Category-level precision at 1 ($\overline {P\text {@}1}_{\mathrm {cat}}$) averaged over 20 coarse acoustic categories at $m=512$. Chance = 0.05 (1/20). i2a and a2i denote image-to-audio and audio-to-image precision respectively}{table.caption.39}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Metadata-Grounded Category Robustness}{11}{appendix.B}\protected@file@percent }
+\newlabel{app:cat_indep}{{B}{11}{Metadata-Grounded Category Robustness}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Metadata-grounded directional semantic precision at $m=512$ (chance $=0.05$ for all columns). AudioCaps-trained methods (top) and WavCaps-trained reference (bottom).}}{11}{table.caption.40}\protected@file@percent }
+\newlabel{tab:cat_indep_dir}{{7}{11}{Metadata-grounded directional semantic precision at $m=512$ (chance $=0.05$ for all columns). AudioCaps-trained methods (top) and WavCaps-trained reference (bottom)}{table.caption.40}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Dimension Scaling}{11}{appendix.C}\protected@file@percent }
+\newlabel{app:dimscale}{{C}{11}{Dimension Scaling}{appendix.C}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces $\overline  {R}_\mathrm  {ia}$ (mean $\pm $ std, 5 seeds) vs.\ embedding dimension $m$ for modular and joint training.}}{11}{table.caption.41}\protected@file@percent }
+\newlabel{tab:dimscale}{{8}{11}{$\avgR _\mathrm {ia}$ (mean $\pm $ std, 5 seeds) vs.\ embedding dimension $m$ for modular and joint training}{table.caption.41}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Causal Controls and Emergence Diagnostics}{12}{appendix.D}\protected@file@percent }
+\newlabel{app:emergence_controls}{{D}{12}{Causal Controls and Emergence Diagnostics}{appendix.D}{}}
+\@writefile{toc}{\contentsline {paragraph}{Phase B training is the causal gate.}{12}{section*.42}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Shuffled-caption control.}{12}{section*.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {E}Projection Sharing and Phase-Order Ablations}{12}{appendix.E}\protected@file@percent }
+\newlabel{app:sharing_phase}{{E}{12}{Projection Sharing and Phase-Order Ablations}{appendix.E}{}}
+\newlabel{sec:sharing}{{E}{12}{Projection Sharing and Phase-Order Ablations}{appendix.E}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Phase A projection-sharing main effect on $\overline  {R}_\mathrm  {ia}$ from the 2$\times $2 sharing factorial, pooled over 5 seeds. ``Sharing'' means Phase A image and text heads share a single JL matrix $\Phi $. Significant Holm-corrected $p$ values (${<}0.05$) are in bold.}}{12}{table.caption.44}\protected@file@percent }
+\newlabel{tab:sharing}{{9}{12}{Phase A projection-sharing main effect on $\avgR _\mathrm {ia}$ from the 2$\times $2 sharing factorial, pooled over 5 seeds. ``Sharing'' means Phase A image and text heads share a single JL matrix $\Phi $. Significant Holm-corrected $p$ values (${<}0.05$) are in bold}{table.caption.44}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {E.1}Phase A Domain and Phase Order}{12}{subsection.E.1}\protected@file@percent }
+\newlabel{sec:phase}{{E.1}{12}{Phase A Domain and Phase Order}{subsection.E.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}Standard Rank Metrics (R@1/R@5/R@10)}{13}{appendix.F}\protected@file@percent }
+\newlabel{app:rk}{{F}{13}{Standard Rank Metrics \texorpdfstring {(R@1/R@5/R@10)}{(R@k)}}{appendix.F}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Standard rank metrics at $m=512$ under the unified evaluation pool (4,411 items). Means are over 5 seeds where applicable.}}{13}{table.caption.45}\protected@file@percent }
+\newlabel{tab:rk512}{{10}{13}{Standard rank metrics at $m=512$ under the unified evaluation pool (4,411 items). Means are over 5 seeds where applicable}{table.caption.45}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Centroid Gap Details}{13}{appendix.G}\protected@file@percent }
+\newlabel{app:gap}{{G}{13}{Centroid Gap Details}{appendix.G}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Image-audio centroid gap ($\ell _2$ distance between modality centroids) across embedding dimensions. Lower values indicate better geometric alignment. Values are from the centroid-gap analysis using COCO Phase A checkpoints.}}{13}{table.caption.46}\protected@file@percent }
+\newlabel{tab:gap}{{11}{13}{Image-audio centroid gap ($\ell _2$ distance between modality centroids) across embedding dimensions. Lower values indicate better geometric alignment. Values are from the centroid-gap analysis using COCO Phase A checkpoints}{table.caption.46}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {H}Phase B Data Quality Mechanism}{13}{appendix.H}\protected@file@percent }
+\newlabel{app:quality}{{H}{13}{Phase B Data Quality Mechanism}{appendix.H}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces CLAP audio-text alignment margin for Phase B training data. Margin = mean(positive similarity $-$ random negative similarity); positive margin fraction = fraction of pairs where the actual caption scores higher than a random caption.}}{13}{table.caption.48}\protected@file@percent }
+\newlabel{tab:quality}{{12}{13}{CLAP audio-text alignment margin for Phase B training data. Margin = mean(positive similarity $-$ random negative similarity); positive margin fraction = fraction of pairs where the actual caption scores higher than a random caption}{table.caption.48}{}}
+\@writefile{toc}{\contentsline {paragraph}{Reporting caveat.}{13}{section*.49}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Centroid gap analysis across all four embedding dimensions (5 seeds each; shaded bands show $\pm $1 std). \textbf  {Left}: Image-audio centroid gap ($\ell _2$) for shared-JL vs.\ separate-JL. At $m=256$ (where separate-JL wins on retrieval), the gaps are nearly identical ($\Delta =-0.003$, within seed noise), ruling out aggregate centroid gap as the reversal mechanism. At $m=128$, separate-JL has a \emph  {smaller} gap (0.535) yet \emph  {lower} retrieval---gap ordering and retrieval ordering disagree in sign. \textbf  {Right}: Corresponding $\overline  {R}_\mathrm  {ia}$ confirms the reversal pattern: shared-JL wins at $m\in \{64,128\}$ and $m=512$; separate-JL wins at $m=256$. The gap metric is a useful cross-method efficiency proxy but does not resolve within-dimension sharing effects.}}{14}{figure.caption.47}\protected@file@percent }
+\newlabel{fig:w5gap}{{4}{14}{Centroid gap analysis across all four embedding dimensions (5 seeds each; shaded bands show $\pm $1 std). \textbf {Left}: Image-audio centroid gap ($\ell _2$) for shared-JL vs.\ separate-JL. At $m=256$ (where separate-JL wins on retrieval), the gaps are nearly identical ($\Delta =-0.003$, within seed noise), ruling out aggregate centroid gap as the reversal mechanism. At $m=128$, separate-JL has a \emph {smaller} gap (0.535) yet \emph {lower} retrieval---gap ordering and retrieval ordering disagree in sign. \textbf {Right}: Corresponding $\avgR _\mathrm {ia}$ confirms the reversal pattern: shared-JL wins at $m\in \{64,128\}$ and $m=512$; separate-JL wins at $m=256$. The gap metric is a useful cross-method efficiency proxy but does not resolve within-dimension sharing effects}{figure.caption.47}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Margin-Performance Regression Across Phase-B Conditions}{14}{appendix.I}\protected@file@percent }
+\newlabel{app:quality_reg}{{I}{14}{Margin-Performance Regression Across Phase-B Conditions}{appendix.I}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces CLAP margin vs.\ downstream performance across five Phase-B conditions.}}{14}{table.caption.50}\protected@file@percent }
+\newlabel{tab:margin_reg}{{13}{14}{CLAP margin vs.\ downstream performance across five Phase-B conditions}{table.caption.50}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}Phase A Source and Scale}{14}{appendix.J}\protected@file@percent }
+\newlabel{app:domain}{{J}{14}{Phase A Source and Scale}{appendix.J}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Phase A source/scale comparison for Shared JL (same AudioCaps Phase B for all rows).}}{15}{table.caption.51}\protected@file@percent }
+\newlabel{tab:phasea_w14}{{14}{15}{Phase A source/scale comparison for Shared JL (same AudioCaps Phase B for all rows)}{table.caption.51}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Phase A source comparison (Shared JL; same AudioCaps Phase~B for all rows). COCO-sub-100K (20K images, 5 captions each) outperforms CC3M-100K at $m \in \{64, 256, 512\}$ and outperforms COCO-full-566K at every tested dimension. CC3M-100K wins only at $m=128$, where image diversity outweighs caption precision in the low-dimension regime. Increasing Phase~A volume beyond $\approx $100K pairs does not improve transfer at any tested dimension (COCO-full-566K never dominates COCO-sub-100K). (Chance at $\overline  {R}=0.0011$, dashed.)}}{15}{figure.caption.52}\protected@file@percent }
+\newlabel{fig:phaseaquality}{{5}{15}{Phase A source comparison (Shared JL; same AudioCaps Phase~B for all rows). COCO-sub-100K (20K images, 5 captions each) outperforms CC3M-100K at $m \in \{64, 256, 512\}$ and outperforms COCO-full-566K at every tested dimension. CC3M-100K wins only at $m=128$, where image diversity outweighs caption precision in the low-dimension regime. Increasing Phase~A volume beyond $\approx $100K pairs does not improve transfer at any tested dimension (COCO-full-566K never dominates COCO-sub-100K). (Chance at $\avgR =0.0011$, dashed.)}{figure.caption.52}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {K}WavCaps Holdout Retrain}{15}{appendix.K}\protected@file@percent }
+\newlabel{app:w3_holdout}{{K}{15}{WavCaps Holdout Retrain}{appendix.K}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces WavCaps holdout retrain summary at $m=512$ (Shared JL). Clean-source conditions use 5 seeds per condition; mixed100k uses 3 seeds. $\Delta _{\text  {holdout-at}}=\overline  {R}_{\mathrm  {at}}^{\text  {Wav holdout}}-\overline  {R}_{\mathrm  {at}}^{\text  {AudioCaps eval}}$.}}{15}{table.caption.53}\protected@file@percent }
+\newlabel{tab:w3_holdout}{{15}{15}{WavCaps holdout retrain summary at $m=512$ (Shared JL). Clean-source conditions use 5 seeds per condition; mixed100k uses 3 seeds. $\Delta _{\text {holdout-at}}=\avgR _{\mathrm {at}}^{\text {Wav holdout}}-\avgR _{\mathrm {at}}^{\text {AudioCaps eval}}$}{table.caption.53}{}}
+\citation{drossos2019clotho}
+\citation{sudarsanam2025avcaps}
+\citation{elizalde2022clap}
+\@writefile{toc}{\contentsline {paragraph}{Clotho cross-domain evaluation: quality-vs-shift decomposition.}{16}{section*.54}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {L}Second Triple Grid (AVCaps)}{16}{appendix.L}\protected@file@percent }
+\newlabel{app:secondtriple}{{L}{16}{Second Triple Grid (AVCaps)}{appendix.L}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces AVCaps grid summary at $m=512$ (5 seeds per row). Full 4-dim grid is used for theory fitting ($n=80$).}}{16}{table.caption.55}\protected@file@percent }
+\newlabel{tab:secondtriple}{{16}{16}{AVCaps grid summary at $m=512$ (5 seeds per row). Full 4-dim grid is used for theory fitting ($n=80$)}{table.caption.55}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {M}Third Triple Grid (SpeechCoco, Pre-Registered)}{16}{appendix.M}\protected@file@percent }
+\newlabel{app:thirdtriple}{{M}{16}{Third Triple Grid (SpeechCoco, Pre-Registered)}{appendix.M}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces SpeechCoco third-triple summary (5 seeds per row).}}{17}{table.caption.56}\protected@file@percent }
+\newlabel{tab:thirdtriple}{{17}{17}{SpeechCoco third-triple summary (5 seeds per row)}{table.caption.56}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {N}Joint Method $\alpha $ and Gap Decomposition}{17}{appendix.N}\protected@file@percent }
+\newlabel{app:joint_alpha}{{N}{17}{Joint Method \texorpdfstring {$\alpha $}{alpha} and Gap Decomposition}{appendix.N}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {18}{\ignorespaces Post-hoc $\alpha $ and centroid gap for joint vs.\ modular methods at $m=512$.}}{17}{table.caption.57}\protected@file@percent }
+\newlabel{tab:joint_alpha}{{18}{17}{Post-hoc $\alpha $ and centroid gap for joint vs.\ modular methods at $m=512$}{table.caption.57}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {O}Bottleneck Theory Details}{17}{appendix.O}\protected@file@percent }
+\newlabel{app:theory}{{O}{17}{Bottleneck Theory Details}{appendix.O}{}}
+\newlabel{app:theory_details}{{O}{17}{Bottleneck Theory Details}{appendix.O}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {19}{\ignorespaces Per-source bottleneck theory fit. Note: projection-sharing factorial shards have near-zero within-shard Pearson $r$ because $\overline  {R}_\mathrm  {it}$ has minimal spread within each shard (fixed Phase A backbone and test conditions). The theory explains variance \emph  {across} experimental conditions, not within a fixed condition where method-level effects dominate residuals.}}{17}{table.caption.58}\protected@file@percent }
+\newlabel{tab:theory_source}{{19}{17}{Per-source bottleneck theory fit. Note: projection-sharing factorial shards have near-zero within-shard Pearson $r$ because $\avgR _\mathrm {it}$ has minimal spread within each shard (fixed Phase A backbone and test conditions). The theory explains variance \emph {across} experimental conditions, not within a fixed condition where method-level effects dominate residuals}{table.caption.58}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {20}{\ignorespaces Dimension-conditional $\alpha $ for LP vs.\ JL under COCO Phase A. Global $\alpha $ overpredicts the LP/JL gap at $m=512$; conditional $\alpha $ resolves this. ``Pred.\ (cond.\ $\alpha $)'' uses per-seed $\sqrt  {\overline  {R}_\mathrm  {it}\overline  {R}_\mathrm  {at}}$ values from the per-dimension theory fit, so it matches the observed ratio (e.g., $1.038$ at $m=512$) exactly by construction; the na\"{i}ve aggregate arithmetic $0.979\times 1.015\approx 0.994$ differs because aggregate means of ratios do not equal the ratio of aggregate means.}}{18}{table.caption.59}\protected@file@percent }
+\newlabel{tab:alpha_conditional}{{20}{18}{Dimension-conditional $\alpha $ for LP vs.\ JL under COCO Phase A. Global $\alpha $ overpredicts the LP/JL gap at $m=512$; conditional $\alpha $ resolves this. ``Pred.\ (cond.\ $\alpha $)'' uses per-seed $\sqrt {\avgR _\mathrm {it}\avgR _\mathrm {at}}$ values from the per-dimension theory fit, so it matches the observed ratio (e.g., $1.038$ at $m=512$) exactly by construction; the na\"{i}ve aggregate arithmetic $0.979\times 1.015\approx 0.994$ differs because aggregate means of ratios do not equal the ratio of aggregate means}{table.caption.59}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {21}{\ignorespaces Functional-form comparison on the primary theory dataset. Train/held-out split uses held-out WavCaps source; CV is 5-fold on full data.}}{18}{table.caption.60}\protected@file@percent }
+\newlabel{tab:form_compare}{{21}{18}{Functional-form comparison on the primary theory dataset. Train/held-out split uses held-out WavCaps source; CV is 5-fold on full data}{table.caption.60}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \textbf  {Left}: Transmission efficiency $\alpha $ across three modality triples using the same encoder (CLAP HTSAT-unfused) and protocol. Error bars show $\pm $half-width of 95\% CI from mixed-effects models. $\alpha $ spans two orders of magnitude---from 0.0198 (SpeechCoco, spoken captions, CLAP not trained on speech) to 0.673 (AVCaps, video-associated audio)---reflecting encoder-domain fit rather than architectural differences. \textbf  {Right}: Cross-regime functional-form comparison (train on AudioCaps, test on WavCaps held out). The geometric mean is the most stable form under held-out transfer, while the free power-form overfits strongly.}}{18}{figure.caption.61}\protected@file@percent }
+\newlabel{fig:crosstriple}{{6}{18}{\textbf {Left}: Transmission efficiency $\alpha $ across three modality triples using the same encoder (CLAP HTSAT-unfused) and protocol. Error bars show $\pm $half-width of 95\% CI from mixed-effects models. $\alpha $ spans two orders of magnitude---from 0.0198 (SpeechCoco, spoken captions, CLAP not trained on speech) to 0.673 (AVCaps, video-associated audio)---reflecting encoder-domain fit rather than architectural differences. \textbf {Right}: Cross-regime functional-form comparison (train on AudioCaps, test on WavCaps held out). The geometric mean is the most stable form under held-out transfer, while the free power-form overfits strongly}{figure.caption.61}{}}
+\@writefile{toc}{\contentsline {paragraph}{Framework A: symmetry-constrained power-form (motivation).}{18}{section*.62}\protected@file@percent }
+\citation{guzhov2022audioclip}
+\citation{girdhar2023imagebind}
+\citation{girdhar2023imagebind}
+\@writefile{toc}{\contentsline {paragraph}{Framework B: Cauchy--Schwarz factorization ceiling.}{19}{section*.63}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Alternative forms.}{19}{section*.64}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Failure modes of the theory.}{19}{section*.65}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scope of the theory claim.}{19}{section*.66}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{SDPI diagnostics (estimator-sensitive support).}{19}{section*.67}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {P}1K Split Evaluation Robustness}{19}{appendix.P}\protected@file@percent }
+\newlabel{app:1k_split}{{P}{19}{1K Split Evaluation Robustness}{appendix.P}{}}
+\@writefile{toc}{\contentsline {paragraph}{1K split definition.}{19}{section*.68}\protected@file@percent }
+\citation{guzhov2022audioclip}
+\@writefile{toc}{\contentsline {paragraph}{Results.}{20}{section*.69}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{AudioCLIP comparison.}{20}{section*.70}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Audio-text quality is unaffected by pool size choice.}{20}{section*.71}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {Q}Practical Deployment Guidance}{20}{appendix.Q}\protected@file@percent }
+\newlabel{app:deployment}{{Q}{20}{Practical Deployment Guidance}{appendix.Q}{}}
+\@writefile{toc}{\contentsline {paragraph}{Step 1 --- Verify emergence prerequisites (§\ref {sec:transitivity}).}{20}{section*.72}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Step 2 --- Run an $\alpha $ pilot before full Phase~B (§\ref {sec:theory}).}{20}{section*.73}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Step 3 --- Choose Phase B data strategically (§\ref {sec:dataquality}).}{21}{section*.74}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Step 4 --- Choose Phase A data strategically (§\ref {sec:ablations}; Fig.~\ref {fig:phaseaquality}).}{21}{section*.75}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Step 5 --- Monitor geometry post-Phase-B (§\ref {sec:projtype}).}{21}{section*.76}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Step 6 --- Use the bottleneck theory for capacity planning (§\ref {sec:theory}).}{21}{section*.77}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scope and caveats.}{21}{section*.78}\protected@file@percent }
+\gdef \@abspage@last{28}

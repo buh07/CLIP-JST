@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+from MultiModal.multimodal.data import merge_wavcaps_audio_text_cache_shards
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--shard-root", required=True)
+    ap.add_argument("--shard-count", type=int, required=True)
+    ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--dataset", default="humanify/AS-WavCaps")
+    ap.add_argument("--clap-model", default="laion/clap-htsat-unfused")
+    ap.add_argument("--clip-backbone", default="openai/clip-vit-base-patch32")
+    ap.add_argument("--target-sr", type=int, default=48_000)
+    ap.add_argument("--max-examples", type=int, required=True)
+    ap.add_argument("--sampling-policy", default="stratified")
+    ap.add_argument("--merge-seed", type=int, default=2026)
+    ap.add_argument("--done-marker", required=True)
+    ap.add_argument("--fail-marker", required=True)
+    args = ap.parse_args()
+
+    shard_root = Path(args.shard_root).resolve()
+    shard_dirs = [shard_root / f"shard{i}" for i in range(int(args.shard_count))]
+    done_marker = Path(args.done_marker)
+    fail_marker = Path(args.fail_marker)
+    done_marker.parent.mkdir(parents=True, exist_ok=True)
+    fail_marker.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        res = merge_wavcaps_audio_text_cache_shards(
+            shard_dirs=shard_dirs,
+            out_dir=Path(args.out_dir).resolve(),
+            dataset_name=str(args.dataset),
+            clap_model_name=str(args.clap_model),
+            clip_backbone_name=str(args.clip_backbone),
+            target_sampling_rate=int(args.target_sr),
+            max_examples=int(args.max_examples),
+            sampling_policy=str(args.sampling_policy),
+            merge_seed=int(args.merge_seed),
+        )
+        done_marker.write_text(
+            json.dumps(
+                {
+                    "status": "ok",
+                    "shard_count": int(args.shard_count),
+                    "artifacts": {k: str(v) for k, v in res.items()},
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        print(f"wavcaps shard merge ok: {res}")
+    except Exception as e:
+        fail_marker.write_text(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "shard_count": int(args.shard_count),
+                    "error_type": type(e).__name__,
+                    "error": str(e),
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+        raise
+
+
+if __name__ == "__main__":
+    main()
+

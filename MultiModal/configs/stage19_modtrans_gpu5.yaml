@@ -1,0 +1,32 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_suite/split/gpu5"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+
+embed_dims: [64, 128, 256, 512]
+seeds: [3, 4]
+
+pseudo_caption_groups: [[0, 1], [2, 3], [4]]
+text_hub_group: [0]
+train_split: "train_restval"
+val_split: "val"
+test_split: "test"
+
+epochs: 60
+warmup_epochs: 6
+patience: 8
+batch_size: 4096
+eval_batch_size: 4096
+num_workers: 4
+lr: 0.001
+
+jl_eps: 0.1
+jl_seed: 42
+shared_raw_dim: 768
+
+gate_relative_threshold: 0.90
+gate_embed_dim: 256
+
+device: "cuda"

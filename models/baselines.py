@@ -10,6 +10,8 @@ Baseline models for comparison with CLIP-JST.
 
 from __future__ import annotations
 
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -31,6 +33,8 @@ class CLIPProjectionHead(nn.Module):
         self.proj_t = nn.Linear(text_dim, embed_dim, bias=False)
         nn.init.normal_(self.proj_v.weight, std=vision_dim ** -0.5)
         nn.init.normal_(self.proj_t.weight, std=text_dim ** -0.5)
+        # Same learnable log-scale temperature as CLIPJSTPipeline for fair comparison.
+        self.logit_scale = nn.Parameter(torch.ones([]) * math.log(1.0 / 0.07))
 
     def encode_image(self, v: torch.Tensor) -> torch.Tensor:
         return F.normalize(self.proj_v(v), dim=-1)
@@ -40,6 +44,54 @@ class CLIPProjectionHead(nn.Module):
 
     def forward(self, v: torch.Tensor, t: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         return self.encode_image(v), self.encode_text(t)
+
+    def n_trainable_params(self) -> int:
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
+
+class OrthogonalProjectionHead(nn.Module):
+    """
+    Learned JL-style projection head.
+
+    Uses trainable linear maps d->m with orthogonality regularization on rows,
+    initialized orthogonally. This is a data-adaptive analogue of fixed random JL.
+    """
+
+    def __init__(
+        self,
+        vision_dim: int = 768,
+        text_dim: int = 512,
+        embed_dim: int = 256,
+        orth_reg: float = 1e-3,
+    ):
+        super().__init__()
+        self.embed_dim = embed_dim
+        self.orth_reg = orth_reg
+        self.proj_v = nn.Linear(vision_dim, embed_dim, bias=False)
+        self.proj_t = nn.Linear(text_dim, embed_dim, bias=False)
+        nn.init.orthogonal_(self.proj_v.weight)
+        nn.init.orthogonal_(self.proj_t.weight)
+        self.logit_scale = nn.Parameter(torch.ones([]) * math.log(1.0 / 0.07))
+
+    def encode_image(self, v: torch.Tensor) -> torch.Tensor:
+        return F.normalize(self.proj_v(v), dim=-1)
+
+    def encode_text(self, t: torch.Tensor) -> torch.Tensor:
+        return F.normalize(self.proj_t(t), dim=-1)
+
+    def forward(self, v: torch.Tensor, t: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        return self.encode_image(v), self.encode_text(t)
+
+    def regularization_loss(self) -> torch.Tensor:
+        if self.orth_reg <= 0:
+            return torch.zeros([], device=self.proj_v.weight.device)
+        eye_v = torch.eye(self.embed_dim, device=self.proj_v.weight.device, dtype=self.proj_v.weight.dtype)
+        eye_t = torch.eye(self.embed_dim, device=self.proj_t.weight.device, dtype=self.proj_t.weight.dtype)
+        gram_v = self.proj_v.weight @ self.proj_v.weight.T
+        gram_t = self.proj_t.weight @ self.proj_t.weight.T
+        reg_v = (gram_v - eye_v).pow(2).mean()
+        reg_t = (gram_t - eye_t).pow(2).mean()
+        return self.orth_reg * (reg_v + reg_t)
 
     def n_trainable_params(self) -> int:
         return sum(p.numel() for p in self.parameters() if p.requires_grad)

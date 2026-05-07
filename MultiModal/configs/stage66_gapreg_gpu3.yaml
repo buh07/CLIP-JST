@@ -1,0 +1,36 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/theory_backing_suite/stage66_gap_intervention
+cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches
+av_cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/caches/audiocaps_av_clap_htsat_unfused
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file: text_feats_openai_clip-vit-base-patch32_raw.pt
+phase_order: it_then_at
+reuse_phase_a_from: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage44_zero_shot_baseline_control
+methods:
+- modular_shared_jl
+baseline_method: modular_shared_jl
+clap_model: laion/clap-htsat-unfused
+clip_backbone: openai/clip-vit-base-patch32
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+av_train_split: train
+av_val_split: validation
+av_test_split: test
+coco_test_split: test
+epochs_phase_b: 40
+patience_phase_b: 8
+batch_size: 2048
+eval_batch_size: 4096
+num_workers: 4
+lr_phase_b: 0.001
+jl_eps: 0.1
+jl_seed: 42
+device: cuda
+anchor_split: train
+centroid_reg_lambda: 0.1
+embed_dims:
+- 256
+seeds:
+- 3

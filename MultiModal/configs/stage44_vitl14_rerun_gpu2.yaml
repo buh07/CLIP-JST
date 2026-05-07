@@ -1,0 +1,47 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/caches_vitl14
+av_cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/caches_vitl14/audiocaps_av_clap_vitl14
+phase_a_source: coco
+phase_b_source: audiocaps
+phase_order: it_then_at
+require_gate_pass: false
+build_av_cache_if_missing: false
+image_cache_file: image_feats_openai_clip-vit-large-patch14_raw.pt
+text_cache_file: text_feats_openai_clip-vit-large-patch14_raw.pt
+audiocaps_dataset: JackyHoCL/AudioCaps-mp3
+clap_model: laion/clap-htsat-unfused
+clip_backbone: openai/clip-vit-large-patch14
+audiocaps_target_sr: 48000
+av_audio_batch_size: 64
+av_image_batch_size: 64
+av_text_batch_size: 128
+vision_dim: 1024
+text_dim: 768
+audio_dim: 512
+shared_raw_dim: 1024
+seeds: [0,1,2,3,4]
+baseline_method: modular_shared_jl
+text_lora_rank: 16
+text_lora_alpha: 1.0
+coco_train_split: train_restval
+coco_val_split: val
+coco_test_split: test
+av_train_split: train
+av_val_split: validation
+av_test_split: test
+epochs_phase_a: 60
+epochs_phase_b: 40
+warmup_phase_a: 6
+patience_phase_a: 8
+patience_phase_b: 8
+batch_size: 2048
+eval_batch_size: 4096
+num_workers: 4
+lr_phase_a: 0.001
+lr_phase_b: 0.001
+jl_eps: 0.1
+jl_seed: 42
+device: cuda
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/post_w3_sequence/stage63_vitl14/train
+methods: [modular_shared_jl]
+embed_dims: [256]

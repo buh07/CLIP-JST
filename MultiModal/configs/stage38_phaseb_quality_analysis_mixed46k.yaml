@@ -1,0 +1,18 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/stage38_mixed46k"
+
+device: "cuda"
+seed: 2026
+clap_model: "laion/clap-htsat-unfused"
+text_batch_size: 256
+
+audiocaps_av_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/caches/audiocaps_av_clap_htsat_unfused"
+audiocaps_split: "train"
+audiocaps_max_samples: 30000
+
+wavcaps_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/caches/wavcaps_mixed46k"
+wavcaps_dataset: "humanify/AS-WavCaps"
+wavcaps_split_name: "train"
+wavcaps_max_samples: 30000
+
+wavcaps_clean_source: "WavCaps/WavCaps"

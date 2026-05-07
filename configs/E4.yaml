@@ -2,8 +2,8 @@
 # Models are loaded from E1 checkpoints; no retraining.
 
 cache_dir: data/cache
-image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
-text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32_raw.pt
 output_dir: results/E4
 
 eval_datasets:
@@ -14,7 +14,7 @@ n_captions:
   flickr30k: 5
   cc3m: 1
 
-vision_dim: 512
+vision_dim: 768
 text_dim:   512
 embed_dim:  256
 
@@ -29,11 +29,11 @@ models:
   jl_mahal_m256_rfull:
     type: jl_mahal
     mahal_rank: null
-    checkpoint_dir: results/E1/coco/jl_mahal_m256_rfull
+    checkpoint_dir: results/E1/coco/jl_mahal_m256_rfull/seed0
   clip_head_m256:
     type: clip_head
-    checkpoint_dir: results/E1/coco/clip_head_m256
-  jl_mahal_m256_r16:
+    checkpoint_dir: results/E1/coco/clip_head_m256/seed0
+  jl_mahal_m256_r128:
     type: jl_mahal
-    mahal_rank: 16
-    checkpoint_dir: results/E1/coco/jl_mahal_m256_r16
+    mahal_rank: 128
+    checkpoint_dir: results/E1/coco/jl_mahal_m256_r128/seed0

@@ -1,0 +1,8 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite"
+stage5_coco_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage5_e8a/E8a_concat_coco.json"
+
+gate_embed_dim: 256
+gate_alpha: 1.0
+gate_beta: 1.0
+gate_high: 0.51
+gate_mid: 0.30

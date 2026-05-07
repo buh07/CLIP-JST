@@ -60,7 +60,7 @@ def _diversity_subset(
     Thins the caption set to n_captions_per_image captions per image.
     Assumes txt_feats are in image-major order (5 captions per image).
     """
-    n_images = len(img_feats) // n_cap_total
+    n_images = len(img_feats)  # img_feats is one row per image, not expanded
     keep_img, keep_txt = [], []
     for i in range(n_images):
         for c in range(n_captions_per_image):
@@ -97,8 +97,9 @@ def _train_and_measure(
     ckpt_dir = Path(cfg["output_dir"]) / label
     train(model, train_loader, val_loader,
           epochs=cfg["epochs"], lr=cfg["lr"],
-          temperature=cfg["temperature"], device=device,
-          ckpt_dir=ckpt_dir, patience=cfg.get("patience", 5))
+          temperature=cfg.get("temperature", 0.07), device=device,
+          ckpt_dir=ckpt_dir, patience=cfg.get("patience", 5),
+          warmup_epochs=cfg.get("warmup_epochs", 0))
     model.load_state_dict(
         torch.load(ckpt_dir / "best.pt", map_location=device, weights_only=True)
     )
@@ -163,25 +164,28 @@ def run(cfg: dict) -> None:
             if not sub_indices:
                 continue
 
-            sub_img = img_feats[[i * n_cap_total for i in sub_indices]]
+            # Build paired training rows with all captions per selected image.
+            sub_img_rows = []
             sub_txt_rows = []
             for i in sub_indices:
                 for c in range(n_cap_total):
+                    sub_img_rows.append(img_feats[i])
                     sub_txt_rows.append(txt_feats[i * n_cap_total + c])
+            sub_img = torch.stack(sub_img_rows)
             sub_txt = torch.stack(sub_txt_rows)
 
-            width = cross_modal_width_estimate(sub_img, sub_txt[:len(sub_img)])
+            # Width estimate on one canonical caption per image to avoid
+            # overweighting images with repeated rows.
+            width_img = img_feats[sub_indices]
+            width_txt = torch.stack([txt_feats[i * n_cap_total] for i in sub_indices])
+            width = cross_modal_width_estimate(width_img, width_txt)
             theory_m = required_dim(width, eps=cfg["jl_eps"])
-            print(f"supcat={supcat}: N={len(sub_img)}, width={width:.3f}, theory_m={theory_m}")
+            print(f"supcat={supcat}: N_images={len(sub_indices)}, N_pairs={len(sub_img)}, width={width:.3f}, theory_m={theory_m}")
 
             dim_results = []
             for m in cfg["embed_dims"]:
                 label = f"supcat_{supcat}_m{m}"
-                metrics = _train_and_measure(
-                    sub_img,
-                    sub_txt[:len(sub_img)],
-                    m, cfg, device, label,
-                )
+                metrics = _train_and_measure(sub_img, sub_txt, m, cfg, device, label)
                 metrics["width"] = width
                 metrics["theory_m"] = theory_m
                 dim_results.append(metrics)

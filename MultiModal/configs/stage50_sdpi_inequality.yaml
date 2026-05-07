@@ -1,0 +1,6 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/sdpi_aggressive_suite"
+stage49_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/sdpi_aggressive_suite/stage49_sdpi_mi_diagnostics/stage49_sdpi_mi_diagnostics_results.json"
+bound_tol: 1e-6
+bootstrap_n: 1000
+analysis_seed: 2026

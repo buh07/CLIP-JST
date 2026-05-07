@@ -1,0 +1,17 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/aggregate
+stage57_shard_roots:
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/headline/split/gpu1
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/headline/split/gpu2
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/headline/split/gpu3
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/headline/split/gpu4
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/headline/split/gpu5
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/headline/split/gpu6
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/headline/split/gpu7
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/lora_addon/split/gpu1
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/lora_addon/split/gpu2
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/lora_addon/split/gpu3
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/lora_addon/split/gpu4
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/lora_addon/split/gpu5
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/lora_addon/split/gpu6
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/lora_addon/split/gpu7

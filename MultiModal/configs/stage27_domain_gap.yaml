@@ -1,0 +1,8 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite"
+baseline_method: "modular_shared_jl"
+stage20_source_roots:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu4"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu5"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu6"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu7"

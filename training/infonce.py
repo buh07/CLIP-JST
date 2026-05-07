@@ -12,7 +12,7 @@ import torch.nn.functional as F
 def infonce_loss(
     image_emb: torch.Tensor,
     text_emb: torch.Tensor,
-    temperature: float = 0.07,
+    temperature: float | torch.Tensor = 0.07,
 ) -> torch.Tensor:
     """
     Args:

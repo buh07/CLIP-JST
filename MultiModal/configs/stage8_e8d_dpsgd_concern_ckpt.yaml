@@ -1,0 +1,32 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/concern_suite"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+
+vision_dim: 768
+text_dim: 512
+shared_raw_dim: 768
+
+epochs: 10
+batch_size: 128
+eval_batch_size: 4096
+num_workers: 4
+lr: 0.0007
+
+epsilons: [1.0, 4.0, 8.0]
+delta: 1.0e-5
+max_grad_norm: 1.0
+save_checkpoints: true
+
+privacy_split: "train_restval"
+max_probe_samples: 50000
+attack_train_frac: 0.8
+attack_hidden_dim: 1024
+attack_epochs: 80
+attack_lr: 0.001
+attack_batch_size: 1024
+
+seeds: [0, 1, 2]
+device: "cuda"

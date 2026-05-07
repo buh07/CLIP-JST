@@ -1,0 +1,33 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_full_aggregate"
+
+source_experiments:
+  # Stage 25/26: JL sharing ablation (4 shards, one dim each)
+  - source_id: "stage25_jlablation_gpu4"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu4/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  - source_id: "stage25_jlablation_gpu5"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu5/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  - source_id: "stage25_jlablation_gpu6"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu6/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  - source_id: "stage25_jlablation_gpu7"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu7/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  # Stage 29: CC3M Phase A modular
+  - source_id: "stage29_cc3m"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage29_cc3m_phaseA_modular"
+    results_file: "stage29_cc3m_phaseA_modular_results.json"
+  # Stage 30: Modular vs non-modular
+  - source_id: "stage30_modular_vs_nonmodular"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage30_modular_vs_nonmodular"
+    results_file: "stage30_modular_vs_nonmodular_results.json"
+  # Stage 31: WavCaps scaling
+  - source_id: "stage31_wavcaps_scaling"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage31_wavcaps_scaling"
+    results_file: "stage31_wavcaps_scaling_results.json"
+  # Stage 32: Modality order ablation
+  - source_id: "stage32_modality_order"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage32_modality_order_ablation"
+    results_file: "stage32_modality_order_ablation_results.json"

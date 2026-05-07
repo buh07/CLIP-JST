@@ -1,0 +1,127 @@
+{
+  "stage": "stage69_prereg_lock",
+  "timestamp_utc": "2026-05-06T20:22:34Z",
+  "alpha_locked": 0.28200220590738095,
+  "alpha_source": {
+    "path": "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/aggregate/stage43_bottleneck_oos_validation/stage43_bottleneck_oos_validation.json",
+    "field": "fit_train.alpha"
+  },
+  "dataset": {
+    "name": "mteb/SpeechCoco",
+    "train_max_examples": 120000,
+    "phase_b_val_examples": 20000,
+    "eval_test_examples": 5000,
+    "sample_seed": 69001,
+    "eval_seed": 69002,
+    "phase_b_split_seed": 69003,
+    "strict_disjoint": true
+  },
+  "grid": {
+    "methods": [
+      "modular_shared_jl",
+      "modular_separate_jl",
+      "audio_linear_probe"
+    ],
+    "embed_dims": [
+      64,
+      128,
+      256,
+      512
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "n_runs": 60,
+    "conditions": [
+      {
+        "method": "modular_shared_jl",
+        "embed_dim": 64,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "modular_shared_jl",
+        "embed_dim": 128,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "modular_shared_jl",
+        "embed_dim": 256,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "modular_shared_jl",
+        "embed_dim": 512,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "modular_separate_jl",
+        "embed_dim": 64,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "modular_separate_jl",
+        "embed_dim": 128,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "modular_separate_jl",
+        "embed_dim": 256,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "modular_separate_jl",
+        "embed_dim": 512,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "audio_linear_probe",
+        "embed_dim": 64,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "audio_linear_probe",
+        "embed_dim": 128,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "audio_linear_probe",
+        "embed_dim": 256,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      },
+      {
+        "method": "audio_linear_probe",
+        "embed_dim": 512,
+        "prediction_rule": "R_ia_pred = alpha_locked * sqrt(R_it_obs * R_at_obs)"
+      }
+    ]
+  },
+  "model_selection_stage72": {
+    "forms": [
+      "geometric_mean",
+      "arithmetic_mean",
+      "hard_min",
+      "product",
+      "power_law_free"
+    ],
+    "selection_metric": "cv_r2_mean",
+    "criterion": "geometric_mean must rank in top-2 by cv_r2_mean"
+  },
+  "success_criteria": {
+    "cell_mean_r_min": 0.85,
+    "cell_mean_mae_max": 0.01,
+    "geometric_mean_top2_required": true
+  },
+  "failure_retry_policy": {
+    "max_retries_per_failed_unit": 2,
+    "identical_config_only": true,
+    "no_silent_replacement": true
+  },
+  "notes": [
+    "Prospective check uses locked alpha with observed per-condition bridge metrics.",
+    "No hyperparameter changes permitted after lock except identical-config reruns for failed units."
+  ]
+}

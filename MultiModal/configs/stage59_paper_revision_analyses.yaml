@@ -1,0 +1,17 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/stage59_paper_revision"
+
+stage44_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage44_zero_shot_baseline_control/stage44_zero_shot_baseline_control_results.json"
+stage20_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_suite/aggregate/stage20_modular_audio_transitivity/stage20_results.json"
+stage30_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage30_modular_vs_nonmodular/stage30_modular_vs_nonmodular_results.json"
+stage36_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/stage36_s44_coco/stage36_bottleneck_decomposition/stage36_bottleneck_decomposition.json"
+stage56_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/aggregate/stage56_wavcaps_holdout_aggregate.json"
+
+stage38_base_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/stage38_phaseb_quality_analysis/stage38_phaseb_quality_analysis_results.json"
+stage38_mixed46k_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/stage38_mixed46k/stage38_phaseb_quality_analysis/stage38_phaseb_quality_analysis_results.json"
+stage38_clean46k_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/stage38_clean46k/stage38_phaseb_quality_analysis/stage38_phaseb_quality_analysis_results.json"
+
+holdout_source_id: "stage31_wavcaps_scaling"
+kfold: 5
+cv_seed: 2026
+powerlaw_bootstrap_n: 1000

@@ -12,6 +12,7 @@ Hypothesis: JL+Mahalanobis advantage is backbone-agnostic.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -66,19 +67,33 @@ def _build_encoder_fns(backbone_cfg: dict, device: str):
 
     elif btype == "clap":
         from transformers import ClapModel, ClapProcessor
+        import math
+        import numpy as np
+        import soundfile as sf
+        from scipy.signal import resample_poly
 
         clap_name = backbone_cfg.get("clap_model", "laion/clap-htsat-unfused")
         processor = ClapProcessor.from_pretrained(clap_name)
         model     = ClapModel.from_pretrained(clap_name).to(device).eval()
 
+        def _read_audio_48k(path: str) -> np.ndarray:
+            wav, sr = sf.read(path, always_2d=False)
+            wav = np.asarray(wav, dtype=np.float32)
+            if wav.ndim == 2:
+                wav = wav.mean(axis=1)
+            if sr != 48000:
+                g = math.gcd(int(sr), 48000)
+                wav = resample_poly(wav, 48000 // g, int(sr) // g).astype(np.float32, copy=False)
+            return wav
+
         @torch.no_grad()
         def img_fn(audio_paths: list[str]) -> torch.Tensor:
-            import soundfile as sf
-            import numpy as np
-            audios = [sf.read(p)[0] for p in audio_paths]
-            inp = processor(audios=audios, return_tensors="pt",
+            audios = [_read_audio_48k(p) for p in audio_paths]
+            inp = processor(audio=audios, return_tensors="pt",
                             sampling_rate=48000, padding=True).to(device)
             out = model.get_audio_features(**inp)
+            if hasattr(out, "audio_embeds"):
+                out = out.audio_embeds
             return out.cpu()
 
         @torch.no_grad()
@@ -86,6 +101,8 @@ def _build_encoder_fns(backbone_cfg: dict, device: str):
             inp = processor(text=texts, return_tensors="pt",
                             padding=True, truncation=True).to(device)
             out = model.get_text_features(**inp)
+            if hasattr(out, "text_embeds"):
+                out = out.text_embeds
             return out.cpu()
 
         return img_fn, txt_fn
@@ -104,32 +121,58 @@ def run(cfg: dict) -> None:
         v_dim = backbone_cfg["vision_dim"]
         t_dim = backbone_cfg["text_dim"]
 
+        manifest_path = Path(backbone_cfg.get("manifest_file", cfg["manifest_file"]))
+        if not manifest_path.exists():
+            msg = f"manifest missing: {manifest_path}"
+            print(f"  Skipping {backbone_name}: {msg}")
+            results[backbone_name] = {"status": "skipped", "reason": msg}
+            continue
+
+        with open(manifest_path) as f:
+            manifest = json.load(f)
+
+        input_key = backbone_cfg.get("input_key")
+        if input_key is None:
+            input_key = "audio_paths" if backbone_cfg["type"] == "clap" else "image_paths"
+        text_key = backbone_cfg.get("text_key", "texts")
+        if input_key not in manifest or text_key not in manifest:
+            msg = f"manifest keys missing ({input_key}, {text_key}) in {manifest_path}"
+            print(f"  Skipping {backbone_name}: {msg}")
+            results[backbone_name] = {"status": "skipped", "reason": msg}
+            continue
+
+        input_paths = manifest[input_key]
+        texts = manifest[text_key]
+        if len(input_paths) != len(texts):
+            raise ValueError(
+                f"Manifest length mismatch for {backbone_name}: "
+                f"{input_key}={len(input_paths)} vs {text_key}={len(texts)}"
+            )
+
         cache_dir = Path(cfg["cache_dir"]) / cfg["dataset"] / backbone_name
-        # Filenames must match the {tag} pattern written by extract_and_cache_generic.
-        tag = backbone_name.replace("/", "_")
+        # CLIP backbones: extract_and_cache uses hf_name + "_raw" as the tag.
+        # Non-CLIP (dinov2_bge, clap): extract_and_cache_generic uses backbone_name.
+        if backbone_cfg["type"] == "clip":
+            hf_name = backbone_cfg.get("hf_name", backbone_name)
+            tag = hf_name.replace("/", "_") + "_raw"
+        else:
+            tag = backbone_name.replace("/", "_")
         img_cache = cache_dir / f"image_feats_{tag}.pt"
         txt_cache = cache_dir / f"text_feats_{tag}.pt"
 
         if not (img_cache.exists() and txt_cache.exists()):
             if backbone_cfg["type"] in ("dinov2_bge", "clap"):
-                # Load paths from a manifest file.
-                import json
-                with open(cfg["manifest_file"]) as f:
-                    manifest = json.load(f)
                 img_fn, txt_fn = _build_encoder_fns(backbone_cfg, device)
                 from data.cache import extract_and_cache_generic
                 extract_and_cache_generic(
-                    manifest["image_paths"], manifest["texts"],
+                    input_paths, texts,
                     cache_dir, backbone_name, img_fn, txt_fn,
                 )
             else:
                 # Standard CLIP-style extraction.
-                import json
-                with open(cfg["manifest_file"]) as f:
-                    manifest = json.load(f)
                 from data.cache import extract_and_cache
                 extract_and_cache(
-                    manifest["image_paths"], manifest["texts"],
+                    input_paths, texts,
                     cache_dir,
                     backbone_name=backbone_cfg.get("hf_name", backbone_name),
                     device=device,
@@ -137,7 +180,8 @@ def run(cfg: dict) -> None:
 
         ds = PairedFeatureDataset(img_cache, txt_cache)
         n_val = int(len(ds) * 0.1)
-        train_ds, val_ds = random_split(ds, [len(ds) - n_val, n_val])
+        gen = torch.Generator().manual_seed(cfg.get("seed", 0))
+        train_ds, val_ds = random_split(ds, [len(ds) - n_val, n_val], generator=gen)
         kw = dict(batch_size=cfg["batch_size"], num_workers=4, pin_memory=True)
         train_loader = DataLoader(train_ds, shuffle=True, **kw)
         val_loader   = DataLoader(val_ds, shuffle=False, **kw)

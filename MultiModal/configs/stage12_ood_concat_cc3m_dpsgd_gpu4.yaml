@@ -1,0 +1,30 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/concern_suite_stage12_split/gpu4_dpsgd"
+
+ood_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/data/cache"
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+ood_datasets: ["cc3m"]
+ood_n_captions:
+  cc3m: 1
+
+stage5_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage5_e8a"
+stage6_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage6_e8b"
+stage8_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/concern_suite/stage8_e8d"
+
+vision_dim: 768
+text_dim: 512
+shared_raw_dim: 768
+embed_dim: 256
+jl_eps: 0.1
+jl_seed: 42
+
+methods:
+  - id: "dpsgd_eps8"
+    family: "stage8"
+    kind: "dpsgd"
+    epsilon_key: "eps8p0"
+
+eval_batch_size: 4096
+seeds: [0, 1, 2]
+device: "cuda"

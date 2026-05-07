@@ -1,0 +1,39 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/concern_suite"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+
+privacy_split: "train_restval"
+max_samples: 50000
+legacy_max_samples: 1000
+
+privacy_embed_dim: 256
+privacy_ps: [0.0, 0.1, 0.5, 1.0]
+alpha: 1.0
+beta: 1.0
+jl_eps: 0.1
+jl_seed: 42
+mask_seed_base: 1000
+
+# Parity attacker (matches Stage7/Stage8).
+attack_train_frac: 0.8
+attack_hidden_dim: 1024
+attack_epochs: 80
+attack_lr: 0.001
+attack_batch_size: 1024
+
+# Legacy attacker emulation (E5-like).
+legacy_attack_train_frac: 0.8
+legacy_attack_hidden_dim: 512
+legacy_attack_epochs: 100
+legacy_attack_lr: 0.001
+legacy_attack_batch_size: 512
+
+e5_results_file: "/jumbo/lisp/f004ndc/CLIP JST/results/rerun_fix_20260429/E5/E5_results.json"
+stage7_results_file: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage7_e8c/E8c_privacy_results.json"
+stage8_results_file: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage8_e8d/E8d_dpsgd_results.json"
+
+seeds: [0, 1, 2]
+device: "cuda"

@@ -1,0 +1,6 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/aggregate
+stage70_aggregate: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/aggregate/stage70_third_triple_aggregate/stage70_third_triple_aggregate.json
+kfold: 5
+cv_seed: 2026
+powerlaw_bootstrap_n: 1000

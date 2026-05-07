@@ -1,0 +1,46 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite_smoke"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+av_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/caches/audiocaps_av_clap_htsat_unfused"
+cc3m_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/data/cache/cc3m"
+cc3m_adapter_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite_smoke/caches/cc3m_adapter"
+phase_a_source: "cc3m"
+phase_b_source: "audiocaps"
+phase_order: "at_then_it"
+build_av_cache_if_missing: false
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+audiocaps_dataset: "JackyHoCL/AudioCaps-mp3"
+clap_model: "laion/clap-htsat-unfused"
+clip_backbone: "openai/clip-vit-base-patch32"
+audiocaps_target_sr: 48000
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+embed_dims: [64]
+seeds: [0]
+methods: [modular_shared_jl]
+baseline_method: modular_shared_jl
+coco_train_split: "train_restval"
+coco_val_split: "val"
+coco_test_split: "test"
+av_train_split: "train"
+av_val_split: "validation"
+av_test_split: "test"
+cc3m_split_seed: 2026
+cc3m_train_frac: 0.8
+cc3m_val_frac: 0.1
+epochs_phase_a: 1
+epochs_phase_b: 1
+warmup_phase_a: 0
+patience_phase_a: 1
+patience_phase_b: 1
+batch_size: 512
+eval_batch_size: 1024
+num_workers: 2
+lr_phase_a: 0.001
+lr_phase_b: 0.001
+jl_eps: 0.1
+jl_seed: 42
+device: "cuda"

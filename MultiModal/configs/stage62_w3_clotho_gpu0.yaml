@@ -1,0 +1,44 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w3_clotho_intermediate/split/gpu0
+stage55_roots:
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu0
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu1
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu2
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu3
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu4
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu5
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu6
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu7
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/mixed200k
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/mixed46k
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/clean_source
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/clean_source_46k
+clotho_cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/caches/clotho
+clotho_dataset: gijs/clotho
+clotho_split: test
+clotho_target_sr: 48000
+clotho_audio_batch_size: 64
+clotho_text_batch_size: 256
+clotho_max_examples: null
+clap_model: laion/clap-htsat-unfused
+clip_backbone: openai/clip-vit-base-patch32
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+eval_batch_size: 4096
+device: cuda
+baseline_method: modular_shared_jl
+methods_filter:
+- modular_shared_jl
+conditions_filter:
+- mixed200k
+embed_dims_filter:
+- 64
+- 128
+seeds_filter:
+- 0
+- 1
+- 2
+- 3
+- 4

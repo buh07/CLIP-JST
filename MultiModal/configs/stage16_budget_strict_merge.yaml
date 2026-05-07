@@ -1,0 +1,10 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_budget_strict
+shard_output_roots:
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_budget_strict_stage16_split/gpu4
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_budget_strict_stage16_split/gpu5
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_budget_strict_stage16_split/gpu6
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_budget_strict_stage16_split/gpu7
+baseline_method: mask_concat_budget
+stage16_merged_results_name: E16_budget_matched_results.json
+stage16_merged_marker_name: stage16_budget_matched.done.json
+

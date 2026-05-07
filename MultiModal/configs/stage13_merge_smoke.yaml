@@ -1,0 +1,5 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_extension_smoke_merged"
+shard_output_roots:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_extension_smoke"
+baseline_method: "mask_concat"

@@ -1,0 +1,22 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite
+speechcoco_dataset: mteb/SpeechCoco
+speechcoco_hf_cache_dir: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/caches/hf_speechcoco
+speechcoco_train_max_examples: 120000
+speechcoco_phase_b_val_examples: 20000
+speechcoco_eval_test_examples: 5000
+speechcoco_sample_seed: 69001
+speechcoco_eval_seed: 69002
+phase_b_split_seed: 69003
+strict_disjoint: true
+speechcoco_target_sr: 48000
+clap_model: laion/clap-htsat-unfused
+clip_backbone: openai/clip-vit-base-patch32
+device: cuda
+shard_index: 6
+shard_count: 8
+speechcoco_audio_batch_size: 32
+speechcoco_image_batch_size: 32
+speechcoco_text_batch_size: 128
+shard_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/stage69_speechcoco_cache_shards
+manifest_path: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/stage69_speechcoco_cache_manifest/stage69_speechcoco_manifest.json

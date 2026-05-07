@@ -1,0 +1,8 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/post_w3_sequence/stage63_vitl14/stage36_law"
+
+source_experiments:
+  - source_id: "stage44_vitl14"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/post_w3_sequence/stage63_vitl14/train/stage44_zero_shot_baseline_control"
+    results_file: "stage44_zero_shot_baseline_control_results.json"
+

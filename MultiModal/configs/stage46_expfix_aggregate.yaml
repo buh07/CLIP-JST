@@ -1,0 +1,7 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/aggregate
+stage44_results_path: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage44_zero_shot_baseline_control/stage44_zero_shot_baseline_control_results.json
+stage45_results_paths:
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage45_mixed46k/stage45_quality_quantity_deconfound/stage45_quality_quantity_deconfound_results.json
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage45_mixed200k/stage45_quality_quantity_deconfound/stage45_quality_quantity_deconfound_results.json
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage45_clean_source/stage45_quality_quantity_deconfound/stage45_quality_quantity_deconfound_results.json
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage45_clean_source_46k/stage45_quality_quantity_deconfound/stage45_quality_quantity_deconfound_results.json

@@ -1,0 +1,7 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w1_second_triple_avcaps/aggregate
+stage57_shard_roots:
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w1_second_triple_avcaps/split/gpu4
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w1_second_triple_avcaps/split/gpu5
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w1_second_triple_avcaps/split/gpu6
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w1_second_triple_avcaps/split/gpu7

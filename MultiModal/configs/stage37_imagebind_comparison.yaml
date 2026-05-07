@@ -1,0 +1,25 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite"
+
+audiocaps_dataset: "JackyHoCL/AudioCaps-mp3"
+split: "test"
+max_examples: null
+media_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/caches/imagebind_media"
+
+batch_size: 6
+thumbnail_timeout_sec: 8.0
+audio_sample_rate: 16000
+audio_clips_per_item: 3
+audio_clip_duration_sec: 2.0
+
+device: "cuda"
+
+reference_rows:
+  - results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage30_modular_vs_nonmodular/stage30_modular_vs_nonmodular_results.json"
+    method: "audio_linear_probe"
+    embed_dim: 512
+    metric: "av_ia_avg_R"
+  - results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage30_modular_vs_nonmodular/stage30_modular_vs_nonmodular_results.json"
+    method: "modular_shared_jl"
+    embed_dim: 512
+    metric: "av_ia_avg_R"

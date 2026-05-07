@@ -33,5 +33,8 @@ backbones:
   clap:
     type: clap
     clap_model: laion/clap-htsat-unfused
+    # Optional: set a manifest with {"audio_paths": [...], "texts": [...]}.
+    # manifest_file: data/audiocaps/manifest.json
+    input_key: audio_paths
     vision_dim: 512
     text_dim:   512

@@ -1,0 +1,7 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/federated_fix
+shard_output_roots:
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage14_fedfix_split/gpu4
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage14_fedfix_split/gpu5
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage14_fedfix_split/gpu6
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage14_fedfix_split/gpu7
+baseline_method: clip_head

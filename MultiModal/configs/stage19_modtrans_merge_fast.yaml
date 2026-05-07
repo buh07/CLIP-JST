@@ -1,0 +1,6 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_suite/stage19_merged"
+shard_output_roots:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_suite/split/gpu6"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_suite/split/gpu7"
+gate_relative_threshold: 0.90
+gate_embed_dim: 256

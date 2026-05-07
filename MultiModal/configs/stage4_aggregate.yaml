@@ -1,0 +1,5 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite"
+stage2_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/stage2_e7/E7_karpathy_full_results.json"
+stage3_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/stage3_trimodal/trimodal_results.json"
+seeds: [0, 1, 2, 3, 4]
+chance_threshold: 0.02

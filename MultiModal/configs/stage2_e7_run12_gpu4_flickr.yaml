@@ -1,0 +1,29 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/run12_gpu4/stage2_e7"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+
+datasets: ["flickr30k"]
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+
+vision_dim: 768
+text_dim: 512
+embed_dims: [64, 128, 256, 512]
+
+epochs: 80
+warmup_epochs: 8
+patience: 10
+batch_size: 4096
+eval_batch_size: 4096
+num_workers: 4
+lr: 0.001
+
+jl_eps: 0.1
+jl_seed: 42
+orth_reg: 0.001
+sparsity_reg: 0.0001
+run1_l1_lambdas: [1e-6, 1e-5, 1e-4]
+directclr_full_dim: 512
+
+seeds: [0, 1, 2, 3, 4]
+device: "cuda"

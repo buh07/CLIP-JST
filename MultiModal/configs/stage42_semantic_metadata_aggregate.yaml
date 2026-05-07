@@ -1,0 +1,8 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/aggregate"
+baseline_method: modular_shared_jl
+stage41_shard_roots:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/split/gpu0"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/split/gpu1"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/split/gpu2"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/split/gpu3"

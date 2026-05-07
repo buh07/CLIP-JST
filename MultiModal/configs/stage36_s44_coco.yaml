@@ -1,0 +1,29 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/stage36_s44_coco"
+
+source_experiments:
+  # Stage 25/26: JL sharing ablation (4 shards, COCO Phase A — keep as-is)
+  - source_id: "stage25_jlablation_gpu4"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu4/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  - source_id: "stage25_jlablation_gpu5"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu5/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  - source_id: "stage25_jlablation_gpu6"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu6/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  - source_id: "stage25_jlablation_gpu7"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu7/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  # Stage 44: COCO Phase A baseline (replaces Stage 29 CC3M + Stage 30 CC3M)
+  - source_id: "stage44_coco_phaseA"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage44_zero_shot_baseline_control"
+    results_file: "stage44_zero_shot_baseline_control_results.json"
+  # Stage 31: WavCaps Phase B scaling (Phase A CC3M, Phase B varies — keep for law diversity)
+  - source_id: "stage31_wavcaps_scaling"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage31_wavcaps_scaling"
+    results_file: "stage31_wavcaps_scaling_results.json"
+  # Stage 32: Modality order ablation (Phase A CC3M — keep for law diversity)
+  - source_id: "stage32_modality_order"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage32_modality_order_ablation"
+    results_file: "stage32_modality_order_ablation_results.json"

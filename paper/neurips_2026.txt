@@ -1,0 +1,4007 @@
+A Bottleneck Theory for Zero-Shot Cross-Modal
+Transfer
+Anonymous Author(s)
+Affiliation
+Address
+email
+
+Abstract
+Multimodal systems are usually built by jointly training on paired data for every
+modality combination, which makes them prohibitively expensive to expand—
+adding a new modality typically requires retraining the entire system from scratch.
+This paper shows a modular alternative: start from a frozen image–text model,
+align audio to the same text space in a separate training stage, and obtain zero-shot
+image–audio retrieval without ever using image–audio pairs. The approach works
+strikingly well, achieving retrieval above 30× chance on a standard benchmark for
+strictly modular projection-only methods (Linear Probe and JL variants), despite
+never seeing an image paired with a sound.
+Causal ablations establish that the transfer is not an artifact of pre-trained backbone
+similarity: removing the audio-text training stage entirely collapses retrieval to
+chance across all tested embedding dimensions, and training on semantically
+scrambled captions collapses it equally. We derive a bottleneck theory showing that
+performance depends multiplicatively on both text-anchored alignment strengths,
+scaled by an encoder-domain efficiency factor that captures how well the audio
+encoder’s training distribution matches the target domain. This structure predicts
+held-out WavCaps performance with high accuracy and, across three audio domains,
+correctly attributes near-complete failure in a speech setting to encoder mismatch
+rather than protocol breakdown.
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+
+20
+
+21
+22
+23
+24
+25
+
+26
+27
+28
+29
+30
+31
+32
+33
+34
+
+1
+
+Introduction
+
+Pretrained bimodal models such as CLIP [Radford et al., 2021] and ALIGN [Jia et al., 2021] build
+rich shared embedding spaces for image and text. A natural follow-on question is whether a new
+perceptual modality—audio, depth, video, thermal—can be added to this space without retraining the
+existing components and without collecting direct cross-modal supervision between the new modality
+and the existing ones.
+The text-anchored protocol. We study a text-anchored modular construction: first, an image-text
+alignment stage trains projection heads on COCO image-caption pairs and freezes all components
+after convergence. Separately, an audio-text alignment stage trains a new audio projection head on
+AudioCaps, using the frozen text head as a semantic bridge—both image and audio embeddings
+are pulled toward the same text anchor, so zero-shot image-audio retrieval emerges at inference
+without image-audio training pairs. The audio-text stage is modular in the strict sense: it can run
+independently on any machine that holds only audio-text data and never modifies the image-text
+components. We refer to the image-text and audio-text training stages as Phase A and Phase B
+respectively throughout the paper.
+Submitted to 40th Conference on Neural Information Processing Systems (NeurIPS 2026). Do not distribute.
+
+40
+
+ImageBind and the anchoring choice. ImageBind [Girdhar et al., 2023] shows that using images
+as a common anchor trains cross-modal transitivity across six modalities simultaneously with direct
+supervision. Our protocol differs in three ways: (1) the anchor is text, not images; (2) Phases A and
+B are decoupled—no joint retraining; (3) Phase B requires no image data at all. These constraints
+make the protocol substantially easier to deploy in data-limited settings, but raise the question: what
+determines the quality of transitivity that emerges?
+
+41
+
+We answer that question empirically and analytically through four main contributions:
+
+35
+36
+37
+38
+39
+
+1. A text-anchored modular training protocol for adding audio to a pretrained image-text
+model without direct image-audio supervision, with robust semantic transfer under two
+independent evaluation protocols (Section 4, Appendix A, Appendix B).
+
+42
+43
+44
+
+2. A causal mechanism for modular transfer: we show via an identity ablation (Phase B
+skipped entirely) that audio alignment does not arise from backbone pre-alignment but
+is learned solely through Phase B training; we further characterise the projection-sharing
+interaction (a dimension-dependent reversal at m = 256 that the bottleneck account does
+not fully explain) as a secondary geometric effect requiring further investigation (Section 5,
+Limitations §7).
+
+45
+46
+47
+48
+49
+50
+
+3. A geometric account of projection effects: projection choice primarily changes transmission efficiency through cross-modal geometry, explaining why learned linear mappings and
+JL-style mappings differ in transfer behavior (Sections 5 and 6).
+p
+4. A predictive bottleneck theory Ria ≈ α · Rit · Rat that unifies the ablations and
+generalizes to held-out conditions, giving a compact quantitative model of modular crossmodal transfer (Section 6).
+
+51
+52
+53
+54
+55
+56
+
+57
+
+58
+59
+60
+61
+62
+63
+64
+
+65
+66
+67
+68
+69
+70
+71
+72
+
+73
+74
+75
+76
+77
+78
+79
+80
+
+81
+82
+83
+84
+
+2
+
+Related Work
+
+Joint cross-modal training. Joint multimodal systems train all modality pairs simultaneously with
+direct supervision. AudioCLIP [Guzhov et al., 2022] extends CLIP by fine-tuning on image-audiotext triplets, requiring concurrent access to all three modalities; on our 1K evaluation split it achieves
+Ria = 0.335 (Appendix P). ImageBind [Girdhar et al., 2023] anchors six modalities to images with
+direct supervision and a ViT-H/14 backbone; its Ria = 0.257 on our full pool reflects both backbone
+scale and direct image-audio training. Our protocol differs in kind: it adds audio using only audio-text
+data, without modifying the existing image-text model and without any image-audio pairs.
+Text as a cross-modal anchor. Using text as a universal semantic bridge is implicit in large
+vision-language models such as ALIGN [Jia et al., 2021] and BLIP [Li et al., 2022], which show
+that rich language representations generalise across modality boundaries. LanguageBind [Zhu et al.,
+2023] explicitly aligns video, depth, audio, and thermal modalities to a shared language space, but
+does so jointly with direct supervision across all pairs rather than incrementally. Our contribution
+is to isolate and characterise the zero-shot transitivity that emerges when two separately trained
+language-anchored alignments are composed at inference time, and to derive a quantitative theory
+governing its quality.
+Modular and continual multimodal learning. Parameter-efficient adapters such as VL-Adapter
+[Sung et al., 2022] extend pretrained models to new vision-language tasks without full retraining,
+but do not address the case where a new perceptual modality must be added with no cross-modal
+paired data. In the audio domain, CLAP [Elizalde et al., 2022] demonstrates strong audio-language
+alignment from frozen pretrained audio encoders, which we adopt as our Phase B backbone. Our
+work is distinctive in (a) strict modularity—Phase B runs on any machine with only audio-text data
+and never touches Phase A components—and (b) systematic derivation of a quantitative predictive
+theory rather than architectural proposals.
+Random projection and geometric alignment. Johnson-Lindenstrauss projections [Johnson &
+Lindenstrauss, 1984] and sparser variants [Kane & Nelson, 2014] provide dimension-reduction
+guarantees with no learned parameters. Prior work has used JL-style projections for cross-modal
+embedding alignment [Garg et al., 2021]. Our contribution to this line is to show that the centroid
+2
+
+Image (COCO)Phase A (image–text)
+
+CLIP ViT-B/32
+(frozen)
+
+fv : image
+head
+
+Phase B (audio–text)
+Audio (AudioCaps)
+Rm
+
+CLAP HTSAT
+(frozen)
+
+text space
+
+fa : audio
+head
+
+InfoNCE
+
+CLIP Text
+(frozen)
+Text (COCO)
+
+ft : text
+head
+
+Inference (zero-shot)
+
+Test image
+
+Rm
+text space
+
+Image
+
+Rm
+text space
+
+ft : text
+head (frozen)
+bridge (frozen)
+
+Rm
+text space
+
+Text (AudioCaps)
+No direct image–audio training pairs
+
+fv
+
+cosine
+similarity
+
+InfoNCE
+
+Audio
+
+zero-shot
+ranking
+
+fa
+
+Test audio
+
+Figure 1: Two-phase text-anchored protocol. Phase A trains image and text heads (fv , ft ) jointly on
+COCO with InfoNCE, then freezes them. Phase B trains an audio head (fa ) on AudioCaps using
+the frozen ft as a semantic bridge—audio and image are never paired during training. At inference,
+fv and fa are composed directly for zero-shot image-audio retrieval. Frozen components are shown
+with dashed borders.
+
+87
+
+gap between image and audio embedding centroids—controlled directly by the projection design—is
+the primary geometric driver of transmission efficiency α, with a within-dimension correlation of
+r = −0.982 at m = 64 and up to r = −0.996 at m = 128.
+
+88
+
+3
+
+85
+86
+
+89
+90
+91
+92
+93
+
+94
+95
+96
+97
+98
+99
+100
+101
+
+102
+103
+104
+105
+
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+
+119
+120
+121
+122
+
+Protocol and Experimental Setup
+
+Two-phase text-anchored training. Phase A trains a projection head fv : Rdv → Rm for image
+features and ft : Rdt → Rm for text features using symmetric InfoNCE on COCO image-text pairs.
+After convergence, both heads are frozen. Phase B trains a projection head fa : Rda → Rm for audio
+features using symmetric InfoNCE on AudioCaps audio-text pairs with the frozen ft as the text
+encoder. Zero-shot image-audio retrieval at test time uses fv and fa without any further adaptation.
+Projection designs. We evaluate four Phase B projection designs: (i) Linear probe: a single
+learnable matrix W ∈ Rm×da trained on Phase B; (ii) JL variants: a fixed Kane-Nelson sparse
+random matrix Φ ∈ Rm×da [Kane & Nelson, 2014] followed by a learnable Mahalanobis head
+(shared or separate from Phase A, hybrid-AT or hybrid-IT); (iii) LoRA adapter (text-head proxy): a
+low-rank adapter that initialises its weights from the frozen text projection head and adapts them to
+the audio domain via Phase B training—we call it a “proxy” because it uses the text head’s parameters
+as a structured geometric initialisation rather than a random one; (iv) Joint references: clip-head or
+JL trained with image-audio-text data jointly (higher-supervision reference rows).
+Datasets and features. Phase A: COCO 2017, 118K training images, 5 captions each. Phase B:
+AudioCaps [Kim et al., 2019], ∼46K audio-caption pairs (training split). Phase B scaling: WavCaps
+[Mei et al., 2023], ∼400K audio-caption pairs. We extract frozen backbone features: CLIP ViT-B/32
+for images and text (dv = 768, dt = 512); CLAP [Elizalde et al., 2022] for audio (da = 512).
+Evaluation metrics. Ria denotes mean recall at 1, 5, 10 for image→audio and audio→image
+on the AudioCaps test split (4,411 examples; Rchance = 0.0011). Rat denotes mean recall at 1,
+5, 10 for audio→text on the same split. Rit denotes image-text recall on the same split (evaluates
+the Phase A bridge quality OOD). P @1cat denotes category-level precision at 1 averaged over 20
+coarse acoustic categories (chance = 0.05). We report two semantic-label protocols: CLAP-label
+is the primary full-coverage semantic metric, while metadata-grounded labeling is an independent
+robustness check on the explicitly keyword-labeled subset (Appendix B). To ground R in standard
+metrics: at m = 512, the top modular methods reach R@1 = 0.007, R@5 = 0.033, R@10 = 0.057
+(full tables in Appendix F, Table 10). All results are averaged over 5 training seeds unless noted; we
+report mean ± std. Unless noted, all retrieval metrics are evaluated on the full 4,411-item AudioCaps
+test pool. A 1K split (883 items; one clip per unique YouTube ID, first occurrence in the test
+split) is used to remove the multi-caption inflation artifact in item-count statistics and enables direct
+comparison with external baselines reported on a single-clip-per-video criterion; see Appendix P.
+Reproducibility. All results average over 5 independent training seeds; mean ± std is reported
+throughout. Pre-computed backbone features (CLIP ViT-B/32; CLAP HTSAT) are fixed across
+all projection-head training conditions, so the only randomness across seeds is projection-head
+initialization and data-loader shuffling. Each Stage identifier in the text corresponds to a reproducible
+3
+
+Table 1: Zero-shot image-audio retrieval (Ria ) and audio-text retrieval (Rat ) at m = 512. Chance
+Ria = 0.0011. Modular rows use only audio-text data in Phase B; the LoRA Proxy additionally
+initialises its weights from the frozen text head (see ‡ ). Joint rows († ) are trained with image-audio-text
+data. Joint CLAP Head (W2, 5 seeds) uses the CLAP audio encoder and is the encoder-matched joint
+reference. Joint CLIP Head and Joint Shared JL use an audio projection head with CLIP-identical
+architecture (not a CLIP-trained audio encoder); their higher Ria is partly explained by this encoder
+difference (see text). ImageBind uses ViT-H/14 with millions of direct image-audio pairs and is an
+absolute scale reference only. All modular rows use COCO Phase A. Full 1K-split comparisons in
+Appendix P.
+Setting
+
+Method
+
+Audio enc.
+
+Ria
+
+Rat
+
+Reference
+
+Chance (n = 4,411)
+
+—
+
+0.0011
+
+—
+
+Modular
+
+Linear Probe (LP)
+Shared JL
+LoRA Proxy‡
+
+CLAP
+CLAP
+CLAP
+
+0.0352±.006
+0.0339±.001
+0.0389±.004
+
+0.233
+0.226
+0.234
+
+Joint† (ref.)
+
+Joint CLIP Head
+Joint Shared JL
+Joint CLAP Head (W2)
+
+CLIP
+CLIP
+CLAP
+
+0.0424±.002
+0.0379±.001
+0.0414±.003
+
+0.247
+0.237
+0.248
+
+Scale ref.
+
+ImageBind [Girdhar et al., 2023]
+
+ViT-H/14
+
+0.2566
+
+0.084
+
+‡ LoRA Proxy initialises its audio projection from the frozen text head’s weights; unlike other modular rows it requires access
+
+to text head parameters at initialisation.
+
+124
+
+configuration file in the supplementary code; full hyperparameter tables (optimizer, learning rate,
+batch size, stopping criterion) and exact data split files are included there.
+
+125
+
+4
+
+123
+
+126
+127
+128
+129
+130
+131
+132
+
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+
+145
+146
+147
+148
+149
+150
+151
+
+Transitivity Emerges from Text Anchoring
+
+Table 1 shows the core result. The audio linear probe achieves Ria = 0.0352 ± 0.006 at m = 512—
+32× above chance—and the modular shared-JL model achieves Ria = 0.0339 ± 0.001—31×
+above chance—despite neither model having observed an image-audio pair during training. This
+comparison is not evidence of modular-training superiority: the original joint rows are encoderconfounded (CLAP vs. CLIP-style audio heads). The encoder-matched W2 row (Joint CLAP Head,
+5 new seeds) gives Ria = 0.0414 at m = 512, and the Linear Probe reaches 85% of that reference
+(0.0352 vs. 0.0414) without image-audio supervision.
+Evidence preview. Three key findings that underpin and contextualise the headline result are
+developed in later sections; we preview them here for orientation. Causal necessity (Figure 2;
+details in Appendix D): skipping the audio-text training stage (Stage 47; identity ablation: Phase B
+training skipped, audio head at random initialisation) collapses Ria to chance at all embedding
+dimensions; a shuffled-caption control (W11/W12; audio-caption assignments randomised while
+keeping the full training loop) produces the same collapse, ruling out backbone
+pre-alignment as a
+p
+confound. Predictive theory (Section 6): the transitivity bottleneck Ria ≈ α Rit · Rat fits in-sample
+at r = 0.921 (n = 300) and predicts held-out WavCaps conditions at r = 0.953. Cross-domain range
+(Appendix L, M): the transmission efficiency α varies from 0.020 (SpeechCoco, near-chance transfer
+despite functional bridge legs) to 0.673 (AVCaps), spanning more than an order of magnitude under
+identical encoder and protocol. Additional diagnostics (joint-α decomposition, 1K-split comparisons,
+category-level semantic transfer, dimension sweep) are in Appendix N, P, A, B, and C.
+The LoRA anomaly. The LoRA Proxy achieves the highest modular Ria at m = 512 (0.0389)
+yet the weakest theory fit (r = 0.293, Table 5). This apparent paradox is resolved by its design:
+because the LoRA Proxy initialises from the frozen text head’s weights, it begins in a well-aligned
+subspace and can exploit residual structure in the text head’s geometry—a retrieval advantage that is
+not predictable from Rit and Rat alone, precisely because this initialisation breaks the independence
+assumption underlying the bottleneck law. The LoRA Proxy is best understood as a hybrid: modular
+in that it trains only on audio-text data, but carrying structural information from the image-text stage
+4
+
+0.04
+
+Chance (R = chance)
+Full training (Stage~44)
+
+Identity ablation (Stage~47)
+Shuffled-caption control (W11/W12)
+
+31×
+
+Ria
+
+0.03
+19×
+
+0.02
+0.01
+
+6×
+
+0.00
+
+m = 64
+
+m = 256
+
+m = 512
+
+Embedding dimension m
+
+Figure 2: Emergence and causal controls. Full Phase B training (Stage 44, Shared JL) achieves Ria at
+6–31× chance across tested dimensions. Both the identity ablation (Stage 47, Phase B skipped) and
+the shuffled-caption controls (W11 at m = 512; W12 at m ∈ {64, 256}) collapse to chance, showing
+that semantically valid audio-caption correspondence is a necessary condition for transitivity. Full
+condition-by-condition values are in Appendix D.
+Table 2: Effect of projection type on image-audio transitivity at m = 512. α is the transmission
+efficiency from the bottleneck theory (Section 6), fitted on COCO Phase A data (Stage 36 S44 refit,
+n = 300). Gapia is the ℓ2 centroid gap between image and audio embeddings (Stage 39 centroid-gap
+analysis using Stage 44 Phase A checkpoints). All rows use COCO Phase A checkpoints.
+Method
+
+Ria
+
+Rat
+
+α
+
+Gapia
+
+Linear Probe (LP)
+LoRA Proxy
+Shared JL
+Separate JL
+
+0.0352
+0.0389
+0.0339
+0.0324
+
+0.233
+0.234
+0.226
+0.244
+
+0.351
+0.349
+0.253
+0.265
+
+0.506
+—
+0.533
+—
+
+153
+
+through its initialisation. Strictly modular rows (Linear Probe, JL variants) do not carry this advantage
+and are the appropriate baselines for evaluating the theory.
+
+154
+
+5
+
+What Determines Transitivity Quality?
+
+155
+
+5.1
+
+Projection Type
+
+156
+
+Table 2 compares Phase B projection designs evaluated under matched COCO Phase A conditions.
+Under COCO Phase A, the linear probe and JL model achieve comparable image-audio retrieval
+(0.0352 vs. 0.0339, 4% difference). The LP’s higher mean comes with substantially greater variance
+(±.006 vs. ±.001), making this 4% difference statistically non-significant (Welch’s t ≈ 0.48, p ≈
+0.65, n = 5 seeds each); JL is 6× more reproducible across seeds. A larger retrieval gap (40%)
+appeared in earlier results because the linear probe used CC3M Phase A (3M pairs) while the JL
+model used COCO Phase A (118K pairs); the richer CC3M pre-training provided a stronger text
+bridge specifically for the unconstrained linear probe. This apparent tension with global α values is
+resolved by dimension-conditional fitting: global αLP /αJL = 1.386 predicts an LP/JL ratio of 1.471
+at m = 512, but the observed ratio is 1.037; fitting α at fixed dimension gives αLP /αJL = 0.979
+at m = 512, predicting 1.038 (Appendix O, Table 20). Global α conflates cross-dimension and
+cross-method variance; at fixed m = 512, the near-equal centroid gaps (0.506 vs. 0.533) correctly
+imply near-equal efficiency. Notably, the conditional fit reverses the LP/JL ordering at m = 512
+(αJL = 0.320 > αLP = 0.313), consistent with the centroid gaps differing by only 5% at that
+dimension; LP’s global advantage arises entirely from larger centroid-gap differences at smaller m.
+
+152
+
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+
+171
+172
+173
+174
+175
+176
+177
+
+Geometric mechanism. Centroid-gap diagnostics (Appendix G) measure the ℓ2 centroid gap
+between image and audio embeddings—the distance between modality centroids in the shared space.
+Table 3 shows this gap across embedding dimensions. The Linear Probe achieves a 5–32% smaller
+centroid gap across all dimensions. A tighter centroid gap means audio embeddings land closer to the
+corresponding image embeddings in the shared space, directly explaining the higher recall and higher
+α. The JL matrix constrains audio embeddings to a random subspace; even with a full Mahalanobis
+head on top, the projection cannot fully rotate the audio subspace to meet the image subspace. The
+5
+
+Table 3: Image-audio centroid gap (ℓ2 distance between modality centroids in the shared Rm space)
+across embedding dimensions. Smaller gap indicates better geometric alignment. Values from
+Stage 39 (centroid-gap analysis using Stage 44 Phase A checkpoints, 5 seeds). “Reduction” is the
+percentage decrease from Shared JL to Linear Probe (LP).
+Method
+
+m = 64
+
+m = 128
+
+m = 256
+
+m = 512
+
+Linear Probe (LP)
+Shared JL
+Reduction
+
+0.389
+0.576
+32%
+
+0.460
+0.570
+19%
+
+0.497
+0.584
+15%
+
+0.506
+0.533
+5%
+
+Table 4: Effect of Phase B training data on retrieval quality (Shared JL, m = 512). CLAP margin is
+measured on a held-out quality-diagnosis subset, not the full training split. WavCaps training uses the
+full 400K mixed-source set; quality diagnosis isolates the WavCaps/WavCaps real-caption subset
+because mixed-source metadata includes known QA-format corruption (Appendix H).
+CLAP margin
+
+Rat
+
+Ria
+
+46K
+400K / 18.7K
+
+0.567
+0.249
+
+0.225
+0.101
+
+0.033
+0.022
+
+×8.7 scale
+
+−56%
+
+−55%
+
+−33%
+
+Phase B data
+AudioCaps [Kim et al., 2019]
+WavCaps [Mei et al., 2023] (clean-source diagnosis)
+∆
+
+178
+179
+
+Size
+
+reduction is largest at m = 64 (where JL’s random subspace is most constraining) and smallest at
+m = 512 (where both methods find adequate solutions in the larger space).
+
+197
+
+Centroid gap predicts transmission efficiency. The centroid gap is not merely a post-hoc geometric description: it quantitatively predicts α. Regressing centroid gap (Gapia ) against α across
+all (method, dimension, seed) triples yields a pooled Pearson r = −0.805 (p < 0.001, n = 40):
+larger centroid gaps correlate with lower transmission efficiency. The relationship is stronger within
+each embedding dimension: r = −0.982 at m = 64, r = −0.996 at m = 128, r = −0.938 at
+m = 256, and r = −0.773 at m = 512, confirming that the centroid gap is a mechanistic driver of
+α rather than a co-variate. Conversely, α predicts Ria : r = +0.766 across the same sample. These
+regressions support a mechanistic pathway consistent with Phase B projection geometry (centroid gap)
+→ transmission efficiency (α) → zero-shot retrieval (Ria ), providing a predictive handle on retrieval
+performance from geometric inspection. We also ran a direct intervention (Stage 67; centroid-gap
+regularisation added during Phase B training): adding centroid-gap regularization during Phase B
+increases Ria by +0.0032 at m = 256 (Holm-adjusted p = 0.0115) and +0.0039 at m = 512
+(Holm-adjusted p = 0.0256), with only a small non-significant Rat decrease. This supports a causal
+interpretation of centroid geometry as a controllable post-training lever. By contrast, a pre-Phase-B
+feasibility check (Stage 68-D; pre-training centroid gap measured before Phase B begins) shows that
+initialization-time centroid gap has weak predictive value for final α (r2 = 0.046), so geometry is
+better used as a post-training diagnostic than a pre-flight predictor. Both Gapia values (Stage 39) and
+α values (Stage 36) use COCO Phase A checkpoints throughout.
+
+198
+
+5.2
+
+199
+
+Table 4 isolates the effect of Phase B data. WavCaps has 8.7× more audio-text pairs than AudioCaps,
+yet switching to it cuts Rat by 55% (0.225 → 0.101). The Phase-B quality analysis (Appendix H)
+diagnoses the cause via the CLAP audio-text alignment margin—the mean excess similarity of an
+audio sample to its own caption versus a random caption. For AudioCaps, this is +0.567 (captions are
+highly audio-specific; 99.4% of pairs have positive margin). For the WavCaps/WavCaps sub-source
+(real web-scraped captions), the margin drops to +0.249 (74.6% positive margin). Roughly 1 in 4
+real-caption WavCaps pairs has a random caption that is more similar to the audio than the actual
+caption—these pairs provide inverted signal to the InfoNCE objective, weakening the text bridge.
+The mixed-source margin is lower due to known metadata corruption and is reported only as a caveat,
+not as the primary comparison.
+
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+
+200
+201
+202
+203
+204
+205
+206
+207
+208
+
+Phase B Data Quality
+
+6
+
+211
+
+The bottleneck
+theory (Section 6) predicts the downstream consequence exactly: if Rat halves,
+p
+√
+Ria ∝ Rat drops by 0.45 = 0.67×. The observed drop is 0.022/0.033 = 0.67—a precise
+quantitative match.
+
+212
+
+Quality and source-match jointly dominate scale. The empirical pattern is consistent:
+
+209
+210
+
+213
+214
+215
+216
+217
+218
+219
+220
+221
+
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+
+• Across five Phase-B conditions, higher CLAP alignment margin predicts higher Rat (slope
+= 0.293, r = 0.917) and higher Ria (slope = 0.015, r = 0.668; Appendix I).
+• AudioCaps-trained conditions outperform all WavCaps conditions at every tested dimension
+despite 8.7× fewer pairs.
+• AudioCaps and WavCaps differ simultaneously in quality, source domain, and collection
+pipeline, so we interpret the margin relationship as empirical calibration, not a strict threshold
+rule.
+Because this regression has only five conditions, we additionally report leave-one-out sensitivity and
+bootstrap intervals in Appendix I; the direction is consistent but uncertainty is wide.
+WavCaps holdout retrain separates quality from split leakage. To separate caption quality effects
+from evaluation leakage, we reran WavCaps Phase B with an explicit in-source holdout (Stage 56;
+Appendix K). On AudioCaps evaluation, all WavCaps variants remain far below AudioCaps-trained
+Phase B (Rat ∈ [0.093, 0.111] vs. 0.226), confirming the quality bottleneck. On held-out WavCaps
+evaluation, source composition becomes decisive: clean-source variants are near parity or slightly
+better than their AudioCaps-eval scores (∆holdout-at = +0.001 to +0.003), while mixed-source
+variants drop sharply (−0.021 to −0.031), indicating that noisy mixed sources drive most of the
+cross-domain degradation. Thus the robust conclusion is quality-first with source-match: more data
+helps only when the added captions preserve alignment quality and source consistency. Within the
+WavCaps variants themselves, however, scale still contributes: the 200K mixed-source condition
+outperforms the clean-source condition on AudioCaps evaluation (Ria = 0.028 vs. 0.024), indicating
+that quality and scale jointly govern performance once source distribution is held fixed.
+Dimension-conditional data-scale tradeoff. The analysis above uses m = 512. The
+Stage 56 W3 extension (all four WavCaps conditions, 5 seeds each, m ∈ {64, 128, 256, 512})
+confirms that the data-scale effect on Ria is dimension-conditional.
+Comparing 200K
+vs. 46K WavCaps mixed-source conditions: Rat improves at every dimension (∆ =
++0.0135, +0.0122, +0.0124, +0.0089 from m = 64 → 512), while Ria follows a crossover pattern
+(∆ = −0.0004, +0.0028, −0.0001, −0.0005). Thus larger WavCaps scale reliably strengthens the
+audio-text bridge but does not reliably translate to better image-audio transitivity once dimension is
+high. We interpret this as a capacity-enabled specialization effect: at larger m, additional capacity can
+fit WavCaps audio-text semantics without preserving alignment to the COCO-anchored image space.
+The practical recommendation is therefore: if WavCaps-scale data must be used, prefer m ≤ 256
+where transitivity is stable. Across all dimensions, AudioCaps at 46K captions outperforms all WavCaps conditions by about a factor of 2 on both Rat and Ria (mean across m ∈ {64, 128, 256, 512}, 5
+seeds each), confirming that caption quality and source-match remain the primary levers over raw data
+scale. Adding the fifth WavCaps condition (100K mixed-source, W13) reinforces this interpretation
+at m = 512: within-domain audio-text quality improves smoothly with scale, but cross-domain
+image-audio transfer remains non-monotonic across 46K, 100K, and 200K mixed-source settings.
+Secondary ablations (moved to appendix). Two additional ablation families are important but
+secondary to the projection/data-quality mechanisms above, so we summarize them briefly here
+and report full tables in Appendix E. First, a full 2×2 projection-sharing factorial shows a robust
+dimension-dependent reversal that the bottleneck theory does not explain (detailed in Section 7
+and Appendix E); the key result is that Phase A sharing helps at m ≤ 128 but hurts at m = 256
+(W9 replication: Separate JL 0.0264 vs. Shared JL 0.0197, Holm-corrected p = 0.0021), with the
+mechanism currently unresolved. Second, Phase A source/scale and phase-order tests (including
+W14) show that size-matched COCO-sub can outperform both CC3M-100K and COCO-full at high
+m, while average phase-order effects remain near zero despite method-specific sign reversals. These
+results refine design guidance but do not alter the main bottleneck account.
+7
+
+Bottleneck Law Fit (COCO Phase A, n=300)
+0.04
+
+stage25_jlablation_gpu4
+stage25_jlablation_gpu5
+stage25_jlablation_gpu6
+stage25_jlablation_gpu7
+
+stage31_wavcaps_scaling
+stage32_modality_order
+stage44_coco_phaseA
+y=x (law line)
+
+Observed Ria
+
+0.03
+0.02
+0.01
+0.00
+0.000
+
+0.005
+
+0.010
+
+0.015
+0.020
+Rit Rat
+
+0.025
+
+0.030
+
+Figure 3: Observed vs. predicted Ria under Eq. 1 across the primary suite (n = 300). The fit is strong
+globally (r = 0.921, r2 = 0.848) and visually stable across the dynamic range. Detailed source-wise
+diagnostics and alternative-form comparisons are in Appendix O.
+
+260
+
+6
+
+The Bottleneck Theory
+
+261
+
+6.1
+
+Motivating Frameworks and Empirical Fit
+
+262
+
+We propose the transitivity bottleneck theory:
+Ria ≈ α ·
+
+263
+264
+265
+
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+
+284
+285
+286
+287
+288
+
+q
+Rit · Rat ,
+
+(1)
+
+where Ria is zero-shot image-audio recall, Rit is image-text recall on the evaluation set (image-text
+bridge quality), Rat is audio-text recall (audio-text bridge quality), and α > 0 is a per-method
+transmission efficiency constant.
+Theoretical motivation. The geometric-mean form above is motivated by the independence of
+the two bridge traversals. If image and audio embeddings each reach the shared text space through
+statistically independent errors—that is, the residual misalignment of the image head and the residual
+misalignment of the audio head are uncorrelated in the Rm text space—then expected cross-modal
+overlap scales as the product of the individual bridge reliabilities. Taking the square root gives
+the geometric mean of the two recall values. The α factor absorbs remaining correlation structure
+(encoder architecture, training-distribution overlap) not captured by marginal bridge qualities alone;
+its near-constancy within a modality triple (r2 = 0.848, n = 300) supports this approximation, while
+its variation across triples (α ∈ [0.020, 0.673]) quantifies where the approximation weakens.
+Table 5 shows that Eq. 1 captures most cross-condition variance in the primary suite (r = 0.921,
+r2 = 0.848, n = 300; MAE = 0.00415). The 300 observations span approximately 60 independent
+(method, embedding dimension, data-source) condition cells at 5 seeds each; within-cell seed variance
+is small relative to cross-condition variance, so the seed-level r = 0.921 is a conservative estimate—
+cell-mean r ≥ 0.921, since averaging 5 seeds per cell reduces within-cell noise without discarding
+cross-condition variance. The theory is strong across experimental conditions (varying method, data
+source, or embedding dimension) and weak by design within any fixed condition where Rit has
+near-zero variance across seeds; the out-of-sample test below provides the cleanest independence
+check.
+Out-of-sample predictive test. To test whether the theory is predictive rather than only descriptive,
+we fit α only on AudioCaps-trained observations (n = 220; all sources except WavCaps scaling) and
+predict held-out WavCaps observations (n = 80). The held-out fit remains stable (α = 0.282), with
+out-of-sample Pearson correlation r = 0.953 and MAE = 0.0022 between predicted and observed
+Ria . This confirms held-out predictive validity under a changed Phase B source.
+8
+
+Table 5: Global and per-method fits of the bottleneck theory (Eq. 1). n is the number of (method,
+embedding dimension, seed) observations. Pearson r within each method group is computed after
+marginalizing over the global α. Fit uses COCO Phase A data (Stage 25/26, Stage 44, Stage 31, Stage
+32; n = 300). Stage 30 (CC3M Phase A) replaced by Stage 44 (COCO Phase A) for projection-type
+source. Method-code mapping is provided once in the appendix preamble. ∗ Within-source r for
+LP uses ceiling variance across Stage 44 seeds/dimensions. ‡ LoRA Proxy initialises from frozen
+text-head weights; its low within-method fit reflects initialisation-driven behaviour that is not fully
+captured by a single global α.
+
+289
+290
+291
+292
+293
+294
+295
+
+296
+297
+298
+299
+300
+301
+302
+303
+304
+
+α
+
+Pearson r
+
+r2
+
+n
+
+Global (all methods)
+
+0.269
+
+0.921
+
+0.848
+
+300
+
+Linear Probe (LP)
+LoRA Proxy‡
+Separate JL
+Shared JL
+Hybrid-AT JL
+Hybrid-IT JL
+
+0.351
+0.349
+0.265
+0.253
+0.266
+0.244
+
+0.931∗
+0.293
+0.926
+0.923
+0.957
+0.935
+
+—
+—
+—
+—
+—
+—
+
+20
+20
+60
+80
+60
+60
+
+Residual diagnostics. Residual structure is concentrated in specific families rather than showing
+a simple monotonic drift with dimension. By method, LoRA has the weakest within-family fit
+(Table 5), indicating adapter-specific behavior beyond a single-α summary. By source, sharingfactorial shards exhibit near-zero within-shard correlation because Rit is nearly constant there
+(Appendix O). By dimension, conditional-α fitting removes the largest systematic LP/JL mismatch
+at m = 512 (Appendix O, Table 20), suggesting that much of the residual is regime-heterogeneity
+rather than random noise.
+Theory scope: projection-family boundary. Per-method fits in Table 5 reveal one important
+scope boundary: the LoRA proxy achieves r = 0.293, far below all projection-only families
+(r ∈ [0.923, 0.957]). Text-initialized adapters share the text head’s initialization basis, which interacts
+with the Phase B source distribution in a dataset-dependent way not captured by the global α estimate.
+LoRA’s fitted α is high in pooled regression, but its within-family explanatory power is low; this
+makes α an insufficient standalone summary for text-initialized adapters. On AVCaps, the LoRA fit is
+substantially stronger (Appendix L), confirming that the theory’s predictive scope is most reliable for
+projection-only families; applying it to text-adapter methods requires per-triple α estimation rather
+than global extrapolation.
+
+311
+
+Extended analyses (moved to appendix). We keep the main theory section focused on Eq. 1,
+global fit, and held-out prediction. Additional analyses are reported in appendix with headline
+outcomes preserved: functional-form model comparison (geometric mean remains best balanced;
+Appendix O, Table 21), cross-triple checks on AVCaps (r = 0.959, α = 0.673) and pre-registered
+SpeechCoco (same structure with low-efficiency boundary at α ≈ 0.020; Appendix L, Appendix M),
+per-method and dimension-conditional α behavior including LoRA boundary effects (Appendix O),
+and joint/ImageBind decompositions (Appendix N, Appendix P).
+
+312
+
+7
+
+305
+306
+307
+308
+309
+310
+
+313
+314
+315
+316
+317
+
+318
+319
+320
+321
+322
+
+Limitations
+
+Absolute performance gap. At best, Ria = 0.039 on the 4,411-item AudioCaps test pool (LoRA
+Proxy, m = 512), or 0.129 on the 883-item 1K split (Linear Probe). This is well above chance but far
+from ImageBind’s 0.257 or a fully supervised system. The gap is substantially due to backbone scale
+(ViT-B/32 vs. ViT-H/14) and the absence of direct image-audio supervision, but our experiments do
+not isolate these factors.
+Generalization beyond the primary triple. The core theory fit (r = 0.921, n = 300) is derived
+from the primary image-text-audio suite. We now include two external triples: a full AVCaps grid
+(4 methods, 4 embedding dimensions, 5 seeds; n = 80) and a full pre-registered SpeechCoco grid
+(3 methods, 4 embedding dimensions, 5 seeds; n = 60). Both support the same multiplicative
+theory form, but with strongly different efficiency regimes (α ≈ 0.673 on AVCaps vs. α ≈ 0.020 on
+9
+
+323
+324
+325
+326
+327
+328
+
+329
+330
+331
+332
+
+SpeechCoco), consistent with α reflecting encoder-domain fit rather than a fully transferable constant;
+this interpretation is consistent with the CLAP pretraining composition reported in Elizalde et al.
+[2022] and the lack of dedicated speech-caption supervision in that setup. Confirming attribution
+causally would require a counterfactual with a speech-trained audio encoder. The theory remains
+falsifiable
+on any new triple: given measured bridge qualities Rit and Rmt , it predicts Rim ≈
+p
+α̂ Rit Rmt , where α̂ is estimated within a fixed modality triple and embedding dimension.
+Bottleneck theory residuals. r2 = 0.848 leaves 15.2% unexplained variance. Within-source
+Pearson r values are low for sharing-factorial shards (near zero; see Appendix O) because bridge
+quality Rit has near-zero within-shard spread—the theory explains variance across experimental
+conditions, not within a fixed condition where method effects dominate.
+
+343
+
+Unexplained dimension-dependent sharing reversal. A consistent finding that the bottleneck
+account does not explain is the dimension-dependent reversal in projection-sharing effects. Phase A
+sharing (shared vs. separate JL) helps at m ≤ 128 but hurts at m = 256 (W9 replication: separate-JL
+0.0264 vs. shared-JL 0.0197, Holm-corrected p = 0.0021), and the effect converges near zero at
+m = 512. The 2×2 factorial further reveals a significant interaction at m = 128 (p < 0.001): when
+both phases share JL, the combined effect is non-additive, not predicted by the main effects. W5 shows
+that the m = 256 reversal is not explained by aggregate centroid-gap differences (∆gap = 0.003
+at m = 256, within seed noise), ruling out the simplest geometric explanation and suggesting the
+mechanism is subspace-level. This reversal is reported in Section 5.1 and Appendix E; we flag it here
+as an open question that complicates practical guidance at intermediate dimensions and warrants
+targeted future investigation.
+
+344
+
+8
+
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+
+Conclusion
+
+We have characterized zero-shot cross-modal transitivity in text-anchored modular multimodal learning through controlled experiments and a predictive quantitative theory. The protocol is effective:
+modular text-anchored transfer is consistently above chance across exact-pair and semantic evaluations (3.9–4.8× semantic chance under the CLAP-label protocol and 6.3–7.6× under independent
+metadata-grounded labels). What makes it better or worse reduces to three measurable quantities:
+Rit (image-text bridge quality), Rat (audio-text bridge quality), and α (projection geometry within
+the modality triple and embedding dimension).
+The most actionable findings concern Phase B. First, Phase B training is a necessary condition
+for audio alignment: an identity ablation that skips Phase B entirely (Stage 47) yields chance
+performance at all embedding dimensions, and a shuffled-caption control that randomizes Phase-B
+audio-caption assignments while running the full training loop (Stage 61/W11) produces the same
+collapse—establishing that semantically valid audio-caption correspondence is the specific necessary
+ingredient, not the gradient updates themselves. Second, the CLAP alignment margin on Phase B
+training captions—a number computable before training—predicts downstream Rat and, via the
+bottleneck theory, downstream Ria ; in our observed range, higher margin is associated with stronger
+bridge quality. Third, when noisy-caption data at scale (e.g., WavCaps) is unavoidable, dimension
+and source composition both matter: gains to Rat can coexist with degraded Ria at high m, and
+mixed noisy sources generalize worse than clean-source subsets on in-source holdout. Phase A shows
+a similar quality/scale tradeoff in the W14 extension: a size-matched COCO subset can outperform
+both CC3M-100K and COCO-full at higher dimensions. Centroid-gap regularization also provides a
+practical post-training lever, with significant Ria gains at m = 256 and m = 512. In the main paper
+we keep deployment implications concise; extended operational guidance and condition-by-condition
+interpretation are provided in Appendix Q.
+A full second-triple AVCaps grid and a pre-registered third-triple SpeechCoco grid provide stronger
+external consistency checks for the same theory form under sharply different regimes. SpeechCoco is
+especially informative as a boundary condition: with CLAP HTSAT on speech audio, α collapses
+to ≈ 0.020 and Ria remains near chance at m = 512, consistent with encoder-domain mismatch
+dominating architecture and dimension effects in this setting (Elizalde et al. 2022)—though a
+counterfactual with a speech-trained encoder would be required to confirm this attribution. Broad
+cross-modality generalization remains open. The geometric-mean form is theoretically motivated
+10
+
+377
+
+by independence of the two bridge traversals; this assumption may break for modalities with strong
+shared low-level statistics or direct coupling. Extending this to additional triples (e.g., depth-textimage and thermal-text-image) is the next decisive test of scope.
+
+378
+
+Broader Impact and Risks
+
+375
+376
+
+386
+
+This work is primarily methodological: it studies when modular multimodal extension can reduce
+retraining cost and data-coupling requirements. Potential positive impacts include lower compute
+burden for modality extension, clearer failure diagnostics before expensive retraining, and easier
+deployment in settings where direct cross-modal pairing is limited. Risks include over-reliance
+on text-mediated transfer in domains where encoder/domain mismatch is severe (as shown by the
+SpeechCoco boundary condition), which can produce confidently wrong retrieval behavior if not
+audited. Accordingly, we recommend explicit reporting of bridge-quality diagnostics, domain-shift
+checks, and held-out evaluation before deployment in safety-critical or high-stakes contexts.
+
+387
+
+References
+
+388
+
+References
+
+389
+
+Drossos, K., Lipping, S., and Virtanen, T. Clotho: An audio captioning dataset. In ICASSP, 2020.
+
+390
+
+Elizalde, B., Deshmukh, S., Al Ismail, M., and Wang, H. CLAP: Learning audio concepts from natural language
+supervision. In ICASSP, 2022.
+
+379
+380
+381
+382
+383
+384
+385
+
+391
+392
+393
+394
+395
+396
+397
+398
+399
+
+Garg, S., Ramakrishnan, G., and Awasthi, P. Multimodal representations from pretrained transformers. In
+NAACL, 2021.
+Girdhar, R., El-Nouby, A., Liu, Z., Singh, M., Alwala, K. V., Joulin, A., and Misra, I. ImageBind: One
+embedding space to bind them all. In CVPR, 2023.
+Guzhov, A., Raue, F., Hees, J., and Dengel, A. AudioCLIP: Extending CLIP to image, text and audio. In
+ICASSP, 2022.
+Jia, C., Yang, Y., Xia, Y., Chen, Y.-T., Parekh, Z., Pham, H., Le, Q., Sung, Y.-H., Li, Z., and Duerig, T. Scaling
+up visual and vision-language representation learning with noisy text supervision. In ICML, 2021.
+
+401
+
+Johnson, W. B. and Lindenstrauss, J. Extensions of Lipschitz mappings into a Hilbert space. Contemporary
+Mathematics, 26:189–206, 1984.
+
+402
+
+Kane, D. M. and Nelson, J. Sparser Johnson-Lindenstrauss transforms. Journal of the ACM, 61(1):1–23, 2014.
+
+403
+
+Kim, C. D., Kim, B., Lee, H., and Kim, G. AudioCaps: Generating captions for audios in the wild. In NAACL,
+2019.
+
+400
+
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+
+Li, J., Li, D., Xiong, C., and Hoi, S. BLIP: Bootstrapping language-image pre-training for unified vision-language
+understanding and generation. In ICML, 2022.
+Mei, X., Liu, X., Sun, J., Plumbley, M. D., and Wang, W. WavCaps: A ChatGPT-assisted weakly-labelled audio
+captioning dataset for audio-language multimodal research. IEEE/ACM Transactions on Audio, Speech, and
+Language Processing, 32:279–293, 2023.
+Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark,
+J., Krueger, G., and Sutskever, I. Learning transferable visual models from natural language supervision. In
+ICML, 2021.
+Sung, Y.-L., Cho, J., and Bansal, M. VL-Adapter: Parameter-efficient transfer learning for vision-and-language
+tasks. In CVPR, 2022.
+Sudarsanam, P., Martin-Morato, I., Hakala, A., and Virtanen, T. AVCaps: An audio-visual dataset with
+modality-specific captions. IEEE Open Journal of Signal Processing, 6:691–704, 2025.
+Zhu, B., Lin, B., Ning, M., Yan, Y., Cui, J., Wang, J., Zhang, T., Li, L., Liu, F., Luo, P., et al. LanguageBind:
+Extending video-language pretraining to N-modality by language-based semantic alignment. In ICLR, 2024.
+
+11
+
+423
+
+Method-name mapping used in appendices. For reproducibility we retain code identifiers
+in several appendix tables. Alias mapping: Linear Probe (LP) = audio_linear_probe;
+Shared JL = modular_shared_jl; Separate JL = modular_separate_jl; LoRA Proxy
+= audio_text_lora_proxy; Joint CLIP Head = joint_clip_head; Joint CLAP Head =
+joint_clap_head; Joint Shared JL = joint_shared_jl.
+
+424
+
+A
+
+419
+420
+421
+422
+
+Category-Level Semantic Precision
+
+Table 6: Category-level precision at 1 (P @1cat ) averaged over 20 coarse acoustic categories at
+m = 512. Chance = 0.05 (1/20). i2a and a2i denote image-to-audio and audio-to-image precision
+respectively.
+Method
+
+avg_cat_p1
+
+i2a_cat_p1
+
+a2i_cat_p1
+
+Chance
+
+0.050
+
+0.050
+
+0.050
+
+audio_linear_probe
+audio_text_lora_proxy
+modular_shared_jl
+modular_separate_jl
+
+0.240±.003
+0.228±.004
+0.234±.004
+0.225±.003
+
+0.171±.004
+0.161±.005
+0.164±.005
+—
+
+0.233±.003
+0.212±.004
+0.231±.004
+—
+
+WavCaps (modular_shared_jl)
+
+0.194±.003
+
+—
+
+—
+
+428
+
+Transitivity carries semantic structure: all methods achieve well above the 20-way chance baseline.
+The linear probe leads (4.8× chance), followed by modular_shared_jl and modular_separate_jl.
+WavCaps-trained models achieve 3.9× chance—still well above chance, but the degraded text bridge
+reduces semantic precision alongside exact-pair recall.
+
+429
+
+B
+
+425
+426
+427
+
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+
+Metadata-Grounded Category Robustness
+
+The primary category metric in Section 4 uses a fixed 20-category prompt taxonomy for comparability
+across methods. To address evaluation-circularity concerns, we additionally evaluate category retrieval
+with labels derived from human-written metadata only: (i) COCO captions for image queries and (ii)
+AudioCaps captions for audio/text corpora, mapped to the same coarse taxonomy by a fixed keyword
+rule set. This avoids CLAP/CLIP prompt-classifier labels for evaluation targets.
+The metadata-grounded rerun preserves the same qualitative ranking and conclusions: at m =
+512 in the AudioCaps-trained source, audio_linear_probe achieves avg_cat_p1 = 0.380, above
+modular_shared_jl (0.365) and audio_text_lora_proxy (0.360); in the WavCaps-trained source, values
+are uniformly lower (e.g., modular_separate_jl = 0.326, modular_shared_jl = 0.315). This confirms
+that the semantic-transfer claim is not an artifact of using CLAP/CLIP prompt classifiers to construct
+category labels. Coverage in this protocol is partial by design: 2,450/4,411 image queries (55%) and
+3,052/4,411 audio queries (69%) have explicit taxonomy keywords in their human-written captions.
+This explains why absolute values are higher than the primary CLAP-label protocol: metadatagrounded evaluation selects more prototypical, explicitly labeled examples. For reproducibility, we
+use only post-fix outputs from the rerun after correcting the Stage41 keyword-boundary parser; no
+pre-fix partial shards are used in any reported statistic.
+Table 7: Metadata-grounded directional semantic precision at m = 512 (chance = 0.05 for all
+columns). AudioCaps-trained methods (top) and WavCaps-trained reference (bottom).
+
+446
+447
+448
+449
+
+Method
+
+i2a_cat_p1
+
+a2i_cat_p1
+
+i2t_cat_p1
+
+a2t_cat_p1
+
+audio_linear_probe (AudioCaps)
+modular_shared_jl (AudioCaps)
+
+0.282 (5.6×)
+0.248 (5.0×)
+
+0.265 (5.3×)
+0.269 (5.4×)
+
+0.428 (8.6×)
+0.400 (8.0×)
+
+0.543 (10.9×)
+0.545 (10.9×)
+
+modular_shared_jl (WavCaps)
+
+0.182 (3.6×)
+
+0.214 (4.3×)
+
+0.400 (8.0×)
+
+0.464 (9.3×)
+
+Dimension scaling under metadata-grounded labels provides an independent corroboration of the
+geometry story: for modular_shared_jl, avg_cat_p1 grows monotonically with m (5.2× → 6.0× →
+6.8× → 7.3× chance from m = 64 to 512), while audio_linear_probe saturates early (7.3× →
+7.4× → 7.6× → 7.6×).
+12
+
+450
+
+C
+
+Dimension Scaling
+Table 8: Ria (mean ± std, 5 seeds) vs. embedding dimension m for modular and joint training.
+Method
+Chance
+modular_shared_jl
+joint_shared_jl
+joint_clip_head
+
+m = 64
+
+m = 128
+
+m = 256
+
+m = 512
+
+0.0011
+0.0068±.000
+0.0067±.000
+0.0336±.004
+
+0.0011
+0.0117±.001
+0.0129±.000
+0.0366±.002
+
+0.0011
+0.0204±.001
+0.0226±.001
+0.0413±.003
+
+0.0011
+0.0339±.001
+0.0379±.001
+0.0424±.002
+
+455
+
+At m = 64, modular and joint JL methods are indistinguishable (0.0068 vs. 0.0067). The modularjoint gap grows with m, reaching 10% at m = 512 (0.0339 vs. 0.0379 for JL; 26% for clip-head).
+The joint clip-head advantage is partly encoder-confounded at m ≥ 256: it uses a CLIP-style audio
+head trained jointly, while modular uses CLAP features. The gap converges monotonically, consistent
+with the bottleneck theory: larger m reduces the centroid gap for all methods.
+
+456
+
+D
+
+451
+452
+453
+454
+
+457
+458
+459
+460
+461
+462
+463
+464
+
+465
+466
+467
+468
+469
+470
+471
+
+Causal Controls and Emergence Diagnostics
+
+Phase B training is the causal gate. To verify that audio alignment is learned during Phase B
+and does not arise from structural pre-alignment between CLAP features and the frozen COCO
+embedding space, we ran an identity ablation (Stage 47): Phase A is loaded from the Stage 44
+checkpoint and Phase B training is skipped entirely (epochs_phase_b=0), leaving the audio head
+at random initialization. At all embedding dimensions (m ∈ {64, 128, 256, 512}), both Rat and
+Ria from the identity ablation are indistinguishable from chance (≤ 0.0015) and from a raw cosine
+baseline using unprocessed CLAP features (Rat = 0.0014, Ria = 0.0011). This establishes Phase B
+training as a necessary condition for audio alignment.
+Shuffled-caption control (W11/W12). A stronger causal control randomizes Phase-B audiocaption assignments while keeping the same training loop, optimizer, and epoch budget active
+(Stage 61; 5 seeds, m = 512). This collapses Rat to 0.00118 ± 0.00028 and Ria to 0.00130 ±
+0.00026—indistinguishable from the Stage 47 identity ablation—while COCO image-text recall
+remains stable, confirming that the collapse is specific to semantic bridge corruption. Repeating the
+shuffled-caption control at m = 64 and m = 256 (W12; 2 seeds each) again yields chance behavior
+(Rat ≈ 0.001, Ria ≈ 0.0005).
+
+473
+
+Figure 2 is shown in the main text for visibility; this appendix section provides the detailed conditionlevel provenance and exact run identifiers.
+
+474
+
+E
+
+472
+
+Projection Sharing and Phase-Order Ablations
+
+Table 9: Phase A projection-sharing main effect on Ria from the 2×2 sharing factorial, pooled over
+5 seeds. “Sharing” means Phase A image and text heads share a single JL matrix Φ. Significant
+Holm-corrected p values (<0.05) are in bold.
+
+475
+476
+477
+478
+479
+480
+
+Effect
+
+m = 64
+
+m = 128
+
+m = 256
+
+m = 512
+
+Phase A sharing ∆Ria
+pHolm
+Phase B sharing ∆Ria
+pHolm
+
++0.0012
+0.012
+−0.0001
+0.779
+
++0.0024
+0.002
++0.0023
+0.003
+
+−0.0038
+0.005
+−0.0021
+0.094
+
++0.0014
+0.101
+−0.0004
+0.658
+
+At m ≤ 128, Phase A sharing helps transitivity significantly (Holm p ≤ 0.012), while at m = 256 it
+hurts significantly (Holm p = 0.005, ∆ = −0.0038). An independent replication on disjoint seeds
+(W9) reproduces the same direction: separate-JL achieves Ria = 0.0264 vs. shared-JL 0.0197 at
+m = 256 (Holm-corrected p = 0.0021, ∆ = +34%). W5 shows this reversal is not explained by
+aggregate centroid-gap differences, indicating a likely subspace-level mechanism not captured by
+global gap statistics.
+13
+
+481
+
+E.1
+
+482
+
+487
+
+The phase-order ablation reverses the training sequence (audio-text first, image-text second). At
+m = 512, reversed order gives +9.6% for modular_separate_jl and −17.6% for modular_shared_jl;
+neither is individually significant after Holm correction, and the cross-method average effect is near
+zero. Together with W14 (Appendix J), this supports a dimension-conditional interpretation: source
+quality/scale and order effects are real but secondary to bridge quality and geometry in the main
+theory.
+
+488
+
+F
+
+483
+484
+485
+486
+
+489
+490
+491
+
+Phase A Domain and Phase Order
+
+Standard Rank Metrics (R@1/R@5/R@10)
+
+Because R is a non-standard aggregate, Table 10 reports standard rank metrics at m = 512 for direct
+comparability with prior retrieval work. We retain R in the main text because it stabilizes uncertainty
+across top-k cutoffs while preserving ordering.
+Table 10: Standard rank metrics at m = 512 under the unified evaluation pool (4,411 items). Means
+are over 5 seeds where applicable.
+
+492
+
+G
+
+Method (source)
+
+R@1
+
+R@5
+
+R@10
+
+R
+
+audio_linear_probe (Stage 44, COCO Phase A)
+modular_shared_jl (Stage 44, COCO Phase A)
+audio_text_lora_proxy (Stage 30 projection type)
+joint_clip_head (Stage 20 joint ref.)
+joint_shared_jl (Stage 20 joint ref.)
+
+0.0066
+0.0066
+0.0063
+0.0082
+0.0082
+
+0.0328
+0.0315
+0.0316
+0.0412
+0.0370
+
+0.0573
+0.0554
+0.0591
+0.0767
+0.0659
+
+0.0352
+0.0339
+0.0389
+0.0429
+0.0385
+
+Centroid Gap Details
+
+Table 11: Image-audio centroid gap (ℓ2 distance between modality centroids) across embedding
+dimensions. Lower values indicate better geometric alignment. Values are from the COCO-matched
+Stage39-S44 rerun (Stage 44 Phase A checkpoints).
+Method
+
+m = 64
+
+m = 128
+
+m = 256
+
+m = 512
+
+audio_linear_probe
+modular_shared_jl
+
+0.389
+0.576
+
+0.460
+0.570
+
+0.497
+0.584
+
+0.506
+0.533
+
+499
+
+The JL centroid gap is largest at m = 64 (0.576 vs. 0.389 for linear probe, 32% larger) and smallest
+relative gap at m = 512 (0.533 vs. 0.506, 5% larger). However, W5 shows this aggregate gap pattern
+does not explain the sharing reversal: at m = 256 (where separate-JL outperforms shared-JL), shared
+and separate conditions have nearly identical centroid gaps, while at m = 128 gap ordering and
+retrieval ordering disagree in sign. Thus centroid gap is a useful global efficiency summary but not a
+complete mechanism for within-dimension sharing effects. Figure 4 visualizes the shared vs. separate
+gap and retrieval at all four W5-analyzed dimensions.
+
+500
+
+H
+
+493
+494
+495
+496
+497
+498
+
+Phase B Data Quality Mechanism
+
+Table 12: CLAP audio-text alignment margin for Phase B training data (Phase B quality analysis;
+experiment log: Stage 38). Margin = mean(positive similarity − random negative similarity); positive
+margin fraction = fraction of pairs where the actual caption scores higher than a random caption.
+Dataset
+AudioCaps
+WavCaps (real captions)
+∆
+501
+502
+
+n
+
+Margin
+
+Positive margin %
+
+Avg. caption tokens
+
+46K
+18.7K
+—
+
+0.567
+0.249
+−56%
+
+99.4%
+74.6%
+−24.8pp
+
+8.7
+∼20
+—
+
+AudioCaps captions are concise and audio-specific (mean 8.7 tokens, e.g., “a dog barks twice”).
+WavCaps real-web captions tend to describe context rather than acoustic content (e.g., “the hum of
+14
+
+(a) Centroid gap: shared vs.\ separate JL
+
+0.035
+
+Shared JL
+Separate JL
+
+0.65
+
+= 0.003
+(near zero)
+
+0.60
+
+Separate wins
+(gap same)
+
+0.025
+
+0.55
+= 0.034
+(sign\,rev.)
+
+0.50
+
+Shared JL
+Separate JL
+
+0.030
+
+Ria
+
+Centroid gap 2 (ia)
+
+(b) Image-audio retrieval: shared vs.\ separate JL
+
+0.020
+
+Shared wins
+(gap larger!)
+
+0.015
+0.010
+0.005
+
+0.45
+
+m = 64
+
+m = 128
+
+m = 256
+
+m = 512
+
+m = 64
+
+m = 128
+
+m = 256
+
+m = 512
+
+Figure 4: W5 centroid gap analysis across all four embedding dimensions (5 seeds each; shaded
+bands show ±1 std). Left: Image-audio centroid gap (ℓ2 ) for shared-JL vs. separate-JL. At m = 256
+(where separate-JL wins on retrieval), the gaps are nearly identical (∆ = −0.003, within seed
+noise), ruling out aggregate centroid gap as the reversal mechanism. At m = 128, separate-JL has a
+smaller gap (0.535) yet lower retrieval—gap ordering and retrieval ordering disagree in sign. Right:
+Corresponding Ria confirms the reversal pattern: shared-JL wins at m ∈ {64, 128} and m = 512;
+separate-JL wins at m = 256. The gap metric is a useful cross-method efficiency proxy but does not
+resolve within-dimension sharing effects.
+
+503
+504
+505
+506
+
+commuters in an underground station”), and 25.4% of pairs fail the margin test—a random caption is
+more similar to the audio than the actual caption. The 56% margin drop (0.567 → 0.249) directly
+reduces InfoNCE learning signal, weakening the Phase
+√ B text bridge and thereby lowering Rat by
+55% and Ria by 33% (the latter consistent with the · scaling in Eq. 1).
+
+511
+
+Reporting caveat. The WavCaps dataset includes sub-sources (AudioSet_SL, Freesound, BBC)
+with corrupted metadata (multiple-choice QA format rather than captions). All quality metrics
+reported above use only the WavCaps/WavCaps sub-source (real web-scraped captions, n = 18.7K).
+The aggregate mixed-source margin (0.162) reflects this corruption and should not be used for
+comparison.
+
+512
+
+I
+
+507
+508
+509
+510
+
+513
+514
+515
+
+Margin-Performance Regression Across Phase-B Conditions
+
+To avoid over-interpreting a two-point comparison, we regress downstream performance on pretraining CLAP margin across the five conditions where margin is measured at m = 512: AudioCaps,
+mixed200k, mixed46k, clean_source, and clean_source_46k.
+Table 13: CLAP margin vs. downstream performance across five Phase-B conditions.
+
+516
+517
+518
+519
+520
+521
+522
+
+Condition
+
+Margin
+
+Rat
+
+Ria
+
+AudioCaps
+mixed200k
+mixed46k
+clean_source
+clean_source_46k
+
+0.5673
+0.1619
+0.1225
+0.2490
+0.2495
+
+0.2256
+0.1112
+0.1024
+0.0990
+0.0930
+
+0.0339
+0.0279
+0.0285
+0.0239
+0.0248
+
+Linear fits give margin→ Rat : Pearson r = 0.917, slope 0.293; and margin→ Ria : Pearson r =
+0.668, slope 0.015. Given the small sample (n = 5 conditions), sensitivity is non-trivial: leave-oneout Pearson ranges are [−0.676, 0.951] for margin→ Rat and [−0.976, 0.815] for margin→ Ria , with
+corresponding slope ranges [−0.080, 0.330] and [−0.035, 0.021]. Bootstrap intervals are likewise
+wide (95% CI for r: [−1, 1] in both regressions), so these results should be interpreted as directional
+calibration rather than stable coefficient estimates. This supports using margin as an empirical pretraining diagnostic in this stack while avoiding strict cutoff-style claims. The additional mixed100k
+15
+
+525
+
+condition (W13) further strengthens the qualitative interpretation: within-domain audio-text quality
+improves with WavCaps scale, but cross-domain image-audio transfer remains non-monotonic, so
+scale alone is insufficient without source-match and caption quality.
+
+526
+
+J
+
+523
+524
+
+527
+528
+
+Phase A Source and Scale
+
+W14 extends the original COCO-vs-CC3M comparison by adding a size-matched COCO subsample
+(100K pairs; 20K images × 5 captions), allowing source quality and scale to be separated.
+Table 14: Phase A source/scale comparison for modular_shared_jl (same AudioCaps Phase B for all
+rows).
+
+529
+530
+531
+532
+533
+534
+
+Phase A source
+
+m = 64
+
+m = 128
+
+m = 256
+
+m = 512
+
+CC3M-100K
+COCO-sub-100K
+COCO-full-566K
+
+0.0043
+0.0117
+0.0068
+
+0.0195
+0.0140
+0.0116
+
+0.0190
+0.0291
+0.0208
+
+0.0328
+0.0407
+0.0339
+
+COCO-sub-100K outperforms both alternatives at m = 256 and m = 512, and also beats COCO-full
+at every tested dimension. CC3M-100K is better only at m = 128, consistent with a low-dimension
+regime where broader visual diversity can outweigh caption precision. These results indicate that
+Phase-A quality/coverage tradeoffs are dimension-dependent, and that larger Phase-A volume is not
+automatically beneficial in this stack. Figure 5 visualizes the pattern across all four dimensions. (See
+Table 14 for raw values.)
+
+0.05
+
+Ria
+
+0.04
+
+CC3M-100K (web, 100K pairs)
+COCO-sub
+wins
+COCO-sub-100K (human, 100K pairs)
+COCO-full-566K (human, 566K pairs)
+
+0.03
+
+CC3M
+wins
+
+0.02
+0.01
+0.00
+
+m = 64
+
+m = 128
+
+m = 256
+
+Embedding dimension m
+
+m = 512
+
+Figure 5: Phase A source comparison (modular_shared_jl; same AudioCaps Phase B for all rows).
+COCO-sub-100K (20K images, 5 captions each) outperforms CC3M-100K at m ∈ {64, 256, 512}
+and outperforms COCO-full-566K at every tested dimension. CC3M-100K wins only at m = 128,
+where image diversity outweighs caption precision in the low-dimension regime. Increasing Phase A
+volume beyond ≈100K pairs does not improve transfer at any tested dimension (COCO-full-566K
+never dominates COCO-sub-100K). (W14; chance at R = 0.0011, dashed.)
+
+535
+
+536
+537
+538
+539
+540
+541
+542
+
+K
+
+WavCaps Holdout Retrain
+
+To separate data-quality effects from train/eval source mismatch, we reran Phase B on WavCaps
+with an explicit in-source holdout and evaluated both AudioCaps test and WavCaps holdout splits
+(Stage 56 aggregate).
+Three conclusions follow. First, every WavCaps condition remains substantially below AudioCapstrained Phase B on AudioCaps evaluation, confirming the quality bottleneck. Second, source
+composition controls cross-domain robustness: clean-source conditions maintain parity on in-source
+holdout, while mixed-source conditions suffer large holdout drops. Third, with mixed-source
+16
+
+Table 15: WavCaps holdout retrain summary at m = 512 (modular_shared_jl). Stage 56 rows
+Wav holdout
+use 5 seeds per condition; mixed100k (W13 extension) uses 3 seeds. ∆holdout-at = Rat
+−
+AudioCaps eval
+Rat
+.
+Condition
+clean_source
+clean_source_46k
+mixed100k
+mixed200k
+mixed46k
+
+543
+544
+545
+
+Rat (AudioCaps eval)
+
+Ria (AudioCaps eval)
+
+Rat (Wav holdout)
+
+∆holdout-at
+
+0.0990±.0011
+0.0930±.0003
+0.1100±.0011
+0.1113±.0010
+0.1024±.0011
+
+0.0239±.0008
+0.0248±.0004
+0.0267±.0018
+0.0280±.0011
+0.0285±.0006
+
+0.1001±.0012
+0.0961±.0010
+0.0865±.0029
+0.0898±.0027
+0.0719±.0015
+
++0.0010
++0.0031
+-0.0235
+-0.0214
+-0.0305
+
+training, increasing scale improves in-source audio-text retrieval but does not monotonically improve
+cross-domain image-audio transfer (mixed46k > mixed200k ≈ mixed100k on Ria ), reinforcing the
+quality/source-match interpretation.
+
+556
+
+Clotho cross-domain evaluation (W3): quality-vs-shift decomposition. An independent evaluation of the same Stage 55 WavCaps checkpoints on the Clotho audio-text benchmark (reinforcecompletion W3; Drossos et al. 2019) decomposes the quality-vs-shift gap. Clotho draws from the
+same Freesound source domain as WavCaps/WavCaps, providing a nearly distribution-matched
+test set. WavCaps models evaluated on Clotho (in-source) outperform their AudioCaps evaluation
+(out-of-source) by 49–54% (Rat : 0.143–0.165 on Clotho vs. 0.093–0.111 on AudioCaps), isolating
+the distribution-shift contribution. Yet WavCaps models on Clotho (Rat ≈ 0.165 best) still fall
+27% below AudioCaps-trained Phase B on AudioCaps (Rat = 0.226), isolating the quality-residual
+contribution. Both factors contribute: roughly half of the WavCaps/AudioCaps gap is attributable to
+distribution shift, and roughly half to caption quality, with quality remaining the larger lever after
+shift is controlled.
+
+557
+
+L
+
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+
+558
+559
+560
+561
+
+Second Triple Grid (AVCaps)
+
+We ran a second-triple AVCaps grid on an independent video-audio-text dataset [Sudarsanam et al.,
+2025]. Using the same two-phase protocol and CLAP/CLIP frozen backbones, we evaluated four
+methods (audio_linear_probe, audio_text_lora_proxy, modular_shared_jl, modular_separate_jl), four
+embedding dimensions (m ∈ {64, 128, 256, 512}), and 5 seeds each (Stage 58 aggregate; n = 80).
+Table 16: AVCaps grid summary at m = 512 (5 seeds per row). Full 4-dim grid is used for theory
+fitting (n = 80).
+Method / m
+audio_linear_probe, m = 512
+audio_text_lora_proxy, m = 512
+modular_separate_jl, m = 512
+modular_shared_jl, m = 512
+
+Rit
+
+Rat
+
+Ria
+
+combined
+
+0.4515±.0075
+0.4522±.0081
+0.4457±.0070
+0.4357±.0167
+
+0.2112±.0197
+0.2277±.0145
+0.2190±.0147
+0.2158±.0055
+
+0.2147±.0315
+0.2287±.0147
+0.2053±.0115
+0.2310±.0097
+
+0.2924±.0183
+0.3028±.0076
+0.2900±.0067
+0.2942±.0102
+
+566
+
+Global theory fit on the AVCaps grid yields α = 0.673, Pearson r = 0.959, r2 = 0.871,
+MAE = 0.0166 (n = 80). Per-method fits are all positive: audio_linear_probe r = 0.820, audio_text_lora_proxy r = 0.878, modular_separate_jl r = 0.963, modular_shared_jl r = 0.990.
+This strengthens external support for the multiplicative theory form beyond the original pilot-scale
+coverage.
+
+567
+
+M
+
+562
+563
+564
+565
+
+568
+569
+570
+571
+572
+
+Third Triple Grid (SpeechCoco, Pre-Registered)
+
+We ran a pre-registered third-triple SpeechCoco grid (image–speech–text) on mteb/SpeechCoco
+with strict split disjointness by image ID. Evaluation uses 5,000 held-out pairs from SpeechCoco
+validation; Phase B training uses 100,000 train pairs with 20,000 Phase-B validation pairs. To enforce
+disjointness, 3,594 overlapping image IDs are removed from COCO Phase-A training, leaving
+109,693 images; train/eval overlap is 0 by construction.
+17
+
+573
+574
+575
+
+The
+grid
+covers
+3
+methods
+(audio_linear_probe,
+modular_shared_jl,
+modular_separate_jl), 4 dimensions (m ∈ {64, 128, 256, 512}), and 5 seeds each (n = 60
+total).
+Table 17: SpeechCoco third-triple summary (5 seeds per row).
+m
+
+method
+
+Rit
+
+Rat
+
+Ria
+
+α
+
+64
+64
+64
+128
+128
+128
+256
+256
+256
+512
+512
+512
+
+audio_linear_probe
+modular_separate_jl
+modular_shared_jl
+audio_linear_probe
+modular_separate_jl
+modular_shared_jl
+audio_linear_probe
+modular_separate_jl
+modular_shared_jl
+audio_linear_probe
+modular_separate_jl
+modular_shared_jl
+
+0.595
+0.158
+0.156
+0.618
+0.378
+0.382
+0.629
+0.543
+0.543
+0.631
+0.606
+0.607
+
+0.024
+0.012
+0.013
+0.057
+0.029
+0.030
+0.101
+0.069
+0.068
+0.120
+0.103
+0.103
+
+0.0053
+0.0014
+0.0015
+0.0041
+0.0025
+0.0016
+0.0050
+0.0034
+0.0033
+0.0059
+0.0049
+0.0055
+
+0.0458
+0.0323
+0.0343
+0.0218
+0.0236
+0.0149
+0.0198
+0.0174
+0.0171
+0.0215
+0.0196
+0.0221
+
+582
+
+The multiplicative form remains accurate, but the regime constant is qualitatively lower than in
+AudioCaps/AVCaps. Pooling m ≥ 128 gives α = 0.0198 ± 0.0033 across methods and seeds. At
+m = 512, Ria remains near chance (≈ 0.005) despite strong Rit and moderate Rat , defining a
+boundary condition where text-anchored transfer is structurally weak. Compared with AudioCaps
+(α ≈ 0.27) and AVCaps (α ≈ 0.67), SpeechCoco shows that encoder-domain fit can shift α by more
+than an order of magnitude while preserving the same multiplicative structure, consistent with the
+CLAP pretraining composition documented by Elizalde et al. [2022].
+
+583
+
+N
+
+576
+577
+578
+579
+580
+581
+
+584
+585
+586
+587
+588
+
+Joint Method α and Gap Decomposition
+
+We measured centroid gaps and fitted α post-hoc for the joint-trained checkpoints (joint_clip_head
+and joint_shared_jl from Stage 20/21), without retraining. The bottleneck theory fits the joint
+observations at r = 0.949 (n = 40; 2 methods × 4 dims × 5 seeds), and the centroid gap predicts α
+with r = −0.865 (p < 10−12 ), confirming the same geometric pathway operates for jointly-trained
+models.
+Table 18: Post-hoc α and centroid gap for joint vs. modular methods at m = 512.
+Method
+Training
+α
+gapia
+audio_linear_probe
+joint_clip_head
+modular_separate_jl
+modular_shared_jl
+joint_shared_jl
+
+modular
+joint
+modular
+modular
+joint
+
+0.351
+0.325
+0.265
+0.253
+0.259
+
+0.506
+0.427
+—
+0.533
+0.534
+
+595
+
+Key observation: αjoint_shared_jl = 0.259 ≈ αmodular_shared_jl = 0.253, confirming that
+the JL projection constraint dominates transmission efficiency regardless of whether training
+is joint or p
+modular. Thepmodular/joint retrieval ratio (0.791) decomposes into: bridge quality factor
+Rit Rat mod / Rit Rat joint = 0.855 (dominant) and projection efficiency factor
+αmod /αjoint_head = 0.253/0.325 = 0.778 (secondary). Encoder and supervision effects are entangled across modular and joint rows; this decomposition attributes the measurable geometric
+components of the gap.
+
+596
+
+O
+
+589
+590
+591
+592
+593
+594
+
+597
+598
+
+Bottleneck Theory Details
+
+The theory fits well for all sources where Rit varies substantially (projection-type, WavCaps scaling,
+and phase-order ablations: r > 0.94). Projection-sharing factorial shards have near-zero within-shard
+18
+
+Table 19: Per-source bottleneck theory fit. Note: projection-sharing factorial shards have near-zero
+within-shard Pearson r because Rit has minimal spread within each shard (fixed Phase A backbone
+and test conditions). The theory explains variance across experimental conditions, not within a fixed
+condition where method-level effects dominate residuals.
+α
+
+Pearson r
+
+n
+
+0.198
+0.170
+0.239
+0.296
+0.316
+0.282
+0.251
+
+−0.15
++0.65
+−0.04
++0.10
++0.94
++0.95
++0.94
+
+20
+20
+20
+20
+60
+80
+80
+
+Source
+Projection-sharing factorial (shard A; Stage 25/26 GPU4)
+Projection-sharing factorial (shard B; Stage 25/26 GPU5)
+Projection-sharing factorial (shard C; Stage 25/26 GPU6)
+Projection-sharing factorial (shard D; Stage 25/26 GPU7)
+Projection-type comparison (Stage 44, COCO Phase A)
+WavCaps scaling ablation (Stage 31)
+Phase-order ablation (Stage 32)
+
+599
+600
+601
+602
+603
+
+r because all methods within a shard use the same Phase A backbone evaluated on the same test
+set, so Rit is nearly constant—the theory’s explanatory power activates when bridge quality varies,
+not when only method parameters vary. The global r = 0.921 arises from pooling all sources: the
+projection-sharing factorial contributes spread in Ria (different methods, different m) but little spread
+in Rit .
+Table 20: Dimension-conditional α for LP vs. JL under COCO Phase A (Stage 59 analysis). Global α
+overpredicts
+the LP/JL gap at m = 512; conditional α resolves this. “Pred. (cond. α)” uses per-seed
+p
+Rit Rat values from the per-dimension theory fit, so it matches the observed ratio (e.g., 1.038 at
+m = 512) exactly by construction; the naïve aggregate arithmetic 0.979 × 1.015 ≈ 0.994 differs
+because aggregate means of ratios do not equal the ratio of aggregate means.
+m
+
+αLP
+
+αJL
+
+α ratio
+
+Observed LP/JL
+
+Pred. (cond. α)
+
+64
+128
+256
+512
+
+0.4256
+0.3675
+0.3216
+0.3131
+
+0.2000
+0.1766
+0.2202
+0.3200
+
+2.128
+2.082
+1.460
+0.979
+
+5.889
+3.287
+1.681
+1.037
+
+5.887
+3.289
+1.682
+1.038
+
+Table 21: Functional-form comparison on the same theory dataset (Stage 59). Train/held-out split
+uses held-out WavCaps source; CV is 5-fold on full data.
+Form
+p
+Geometric mean α Rit Rat
+Arithmetic mean α(Rit + Rat )/2
+Hard min α min(Rit , Rat )
+Product αRit Rat
+a b
+Free power-form αRit Rat
+604
+605
+606
+607
+608
+
+609
+610
+
+In-sample R2
+
+Held-out R2
+
+In-sample MAE
+
+Held-out MAE
+
+0.832
+0.703
+0.851
+0.824
+0.758
+
+0.853
+0.552
+0.203
+0.210
+-1.173
+
+0.00350
+0.00484
+0.00337
+0.00366
+0.00395
+
+0.00221
+0.00370
+0.00578
+0.00559
+0.00983
+
+For the free power-form, bootstrap 95% CIs are a ∈ [1.047, 1.193] and b ∈ [−0.366, −0.246],
+confirming instability and overfit under held-out evaluation. Hard min achieves high in-sample R2 =
+0.851 because Rat ≤ Rit throughout the AudioCaps training conditions, collapsing min(Rit , Rat ) to
+a linear function of Rat alone; when the leg ordering differs on held-out WavCaps data, this degrades
+sharply to R2 = 0.203.
+Framework A: symmetry-constrained power-form (motivation).
+metric follows a separable power-form
+a
+
+Assume the composed transfer
+
+b
+
+Ria = α · Rit Rat .
+611
+612
+613
+
+Two structural constraints motivate the exponents. (i) Approximate phase-order symmetry (Section E.1) motivates invariance under Rit ↔ Rat , hence a ≈ b. (ii) First-order homogeneity under
+common bridge scaling motivates a + b ≈ 1. This yields the symmetric geometric-mean form
+q
+Ria ∝ Rit Rat .
+19
+
+Transmission efficiency
+
+= 0.673
+
+0.6
+0.4
+
+= 0.05 (encoder mismatch)
+= 0.20 (productive regime)
+
+= 0.27
+
+0.2
+0.0
+
+= 0.0198
+
+AudioCaps
+(env. sounds)
+
+AVCaps
+(video audio)
+
+SpeechCoco
+(spoken captions)
+
+Held-out R 2 (AudioCaps WavCaps)
+
+(a) Encoder-domain fit across triples
+
+0.8
+
+1.0
+0.8
+0.6
+0.4
+0.2
+0.0
+0.2
+
+(b) Cross-regime functional form
+0.853
+0.552
+
+Geometric
+mean
+
+Arithmetic
+mean
+
+0.203
+
+0.210
+
+Hard min
+
+Product
+
+1.17
+Free
+power-form
+
+Figure 6: Left: Transmission efficiency α across three modality triples using the same encoder
+(CLAP HTSAT-unfused) and protocol. Error bars show ±half-width of 95% CI from mixed-effects
+models. α spans two orders of magnitude—from 0.0198 (SpeechCoco, spoken captions, CLAP not
+trained on speech) to 0.673 (AVCaps, video-associated audio)—reflecting encoder-domain fit rather
+than architectural differences. Right: Cross-regime functional-form comparison (train on AudioCaps,
+test on WavCaps held out). The geometric mean is the most stable form under held-out transfer, while
+the free power-form overfits strongly.
+
+614
+615
+
+616
+617
+618
+
+619
+620
+621
+
+622
+623
+624
+625
+626
+
+627
+628
+629
+630
+631
+
+632
+633
+634
+635
+
+636
+637
+638
+639
+640
+641
+642
+643
+644
+
+This is a structural motivation, not a full proof: homogeneity remains an explicit modeling assumption
+and is validated empirically via Table 21.
+Framework B: Cauchy–Schwarz factorization ceiling. Under text-mediated factorization,
+matched embeddings satisfy zi ≈ Wi zt and za ≈ Wa zt (up to residuals), with unit-normalized
+embeddings. For matched triples,
+p
+|⟨zi , za ⟩| ≤ ⟨zi , zt ⟩⟨za , zt ⟩,
+which gives a geometric-mean ceiling on composed similarity. With monotone similarity-to-recall
+mapping, this induces the recall-level form of Eq. 1. In this view, α is the empirical efficiency relative
+to the factorization ceiling; methods with smaller centroid gap (Appendix G) achieve larger α.
+Alternative forms. Three natural alternatives are min(Rit , Rat ) (hard bottleneck chain), (Rit +
+Rat )/2 (arithmetic mean), and Rit · Rat (raw product). The arithmetic mean predicts that a strong leg
+can offset a weak leg, contradicted by the WavCaps scaling result where weakening Rat degrades Ria
+multiplicatively. The raw product underestimates observed recall by a near-constant factor, captured
+by α.
+Failure modes of the theory. The independence assumption can break when bridge legs share
+strong low-level statistics (e.g., speech-like modalities strongly correlated with text), where α may
+shift outside the observed range. Within-condition shards with near-constant Rit (e.g., sharingfactorial shards) also yield low within-shard Pearson correlation; the theory is intended to explain
+variance across conditions where bridge quality changes.
+Scope of the theory claim. Both frameworks above motivate the geometric-mean form and interpretation of α, but neither is presented as a formal proof that Eq. 1 must hold exactly for all retrieval
+distributions. Accordingly, we treat Eq. 1 as an empirically validated scaling theory with explicit
+assumptions, strengthened by held-out predictive validation (Section 6).
+SDPI diagnostics (estimator-sensitive support). An aggressive MI-space diagnostic suite
+(Stages 48–54) re-estimates the bridge relationships on 435 condition groups using three estimators (KSG, CANCOR proxy, Gaussian log-det). Estimator behavior is heterogeneous: SDPI-style
+upper-bound violation rates are 24.1% (KSG), 0.0% (CANCOR), and 1.15% (Gaussian). Correlation
+between MI-space and recall-space transitivity is strong for CANCOR/Gaussian (r = 0.902/0.854
+for corr(MIia , Ria )), but weak for KSG (r = 0.159), consistent with high-dimensional nonparametric estimator noise. Across all estimators, MI-space efficiency αI is negatively correlated with
+recall-space α (r ∈ [−0.52, −0.41]), so we report SDPI as a mechanistic upper-bound lens rather
+than a direct derivation of Eq. 1.
+20
+
+645
+
+646
+647
+648
+649
+
+P
+
+1K Split Evaluation Robustness
+
+The AudioCaps test set contains 4,411 audio-caption pairs, but many pairs share the same YouTube
+ID (one video clip, multiple human-written captions). Counting all 4,411 items inflates the effective
+pool size relative to the number of unique source clips, which can depress reported recall values
+(more distractors per true match) relative to evaluations that count each clip once.
+
+653
+
+1K split definition. The 1K split retains the first occurrence of each unique YouTube ID in the
+test split, yielding 883 items. This is the same criterion used by several external retrieval baselines,
+enabling direct comparison. All five training seeds share the same 883-item split (the split depends
+only on the test set, not the model).
+
+654
+
+Results.
+
+650
+651
+652
+
+655
+
+656
+657
+658
+659
+660
+661
+
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+
+Method
+
+Pool
+
+Ria
+
+Rat
+
+Rit
+
+audio_linear_probe (Stage 44, m = 512)
+audio_linear_probe (Stage 44, m = 512)
+AudioCLIP [Guzhov et al., 2022]
+ImageBind-Huge [Girdhar et al., 2023]
+ImageBind-Huge [Girdhar et al., 2023]
+
+Full (4,411)
+1K split (883)
+1K overlap (883)
+Full (4,411)
+1K split (883)
+
+0.0352
+0.1288
+0.3348
+0.2566
+0.5317
+
+0.233
+0.541
+0.297
+0.084
+0.254
+
+—
+—
+0.191
+—
+—
+
+The 1K split inflates absolute recall values by a factor of approximately 2.3× for Rat and 3.2× for
+Ria relative to the full pool, consistent with the increased distractor density of the full pool. The
+relative ordering and the ratio between methods is preserved: audio_linear_probe reaches 24% of
+ImageBind on the 1K split (0.129 vs. 0.531) vs. 14% on the full pool (0.035 vs. 0.257). The 1K split
+yields the more fair comparison for per-unique-clip baselines; the full-pool numbers are the primary
+reported metric for consistency with our own ablations.
+AudioCLIP comparison. AudioCLIP [Guzhov et al., 2022] is evaluated on the 883-item 1K
+overlap subset (items with both matching audio files and image frames available). Our modular linear
+probe achieves Rat = 0.541 vs. AudioCLIP’s 0.297—a 1.82× advantage on audio-text retrieval—
+while reaching only 38% of AudioCLIP’s image-audio performance (Ria = 0.129 vs. 0.335). The
+inversion is informative: AudioCLIP is trained with direct image-audio supervision (image-audio-text
+triplets), which builds a strong image-audio bridge but a comparatively weak audio-text bridge. Our
+protocol inverts this: Phase B optimization over audio-text pairs builds a strong text anchor while the
+image-audio channel is fed only through text-mediated transitivity. Applying
+the bottleneck theory,
+√
+AudioCLIP’s Rat = 0.297 and Rit = 0.191 would predict Ria ≈ α̂ 0.297 × 0.191 = 0.238α̂;
+with our fitted α ≈ 0.27, this predicts only 0.064—far below AudioCLIP’s observed 0.335. The
+discrepancy confirms that AudioCLIP’s high Ria is not text-mediated transitivity but direct joint
+supervision that bypasses the bottleneck theory entirely.
+
+679
+
+Audio-text quality is unaffected by pool size choice. Rat on the 1K split (0.541 for audio_linear_probe) vs. full pool (0.233) reflects the same inflation effect: with 883 items, each text
+query has fewer distractors, boosting recall. The ratio of our method to ImageBind on Rat : full pool
+0.233/0.084 = 2.77×; 1K split 0.541/0.254 = 2.13×. Our protocol consistently achieves higher
+audio-text quality than ImageBind under both evaluation protocols, confirming that the bottleneck is
+the transitivity step (image-audio), not the text anchor.
+
+680
+
+Q
+
+674
+675
+676
+677
+678
+
+681
+682
+683
+
+684
+685
+686
+
+Practical Deployment Guidance
+
+This appendix translates the empirical findings into a concrete decision stack for practitioners who
+want to extend a pretrained image-text model to a new audio modality using the text-anchored modular
+protocol. Steps are ordered by when they can be applied; each cites the supporting experiment.
+Step 1 — Verify emergence prerequisites (§4; Stage 47, W11). Before committing to a full
+training run, confirm that Phase B training is the causal gate in your setup. Run a single shuffledcaption control: execute the standard Phase B loop with audio-caption assignments randomly
+21
+
+687
+688
+689
+690
+691
+
+692
+693
+694
+695
+696
+697
+698
+699
+700
+
+701
+702
+703
+
+704
+705
+706
+707
+708
+709
+710
+711
+712
+
+713
+714
+715
+716
+717
+718
+719
+
+720
+721
+722
+723
+724
+725
+726
+
+727
+728
+729
+730
+731
+732
+
+733
+734
+
+permuted. If Ria stays above chance, there is likely data contamination or evaluation leakage. If it
+collapses to chance, the setup is clean and Phase B semantics are required. This check adds minimal
+compute (one extra run) and is valid across all tested dimensions (m ∈ {64, 128, 256, 512}); the
+Stage 47 identity ablation provides an even cheaper sanity check (skip Phase B entirely and confirm
+Ria ≈ 0.0011).
+p
+Step 2 — Run an α pilot before full Phase B (§6; Stage 69). Fit α = Ria / Rit · Rat after a short
+Phase B pilot (10–20% of planned data, a few epochs). Practical thresholds (from the cross-triple
+analysis; Fig. 6):
+• α < 0.05: encoder-domain mismatch is likely the bottleneck (cf. SpeechCoco at α ≈ 0.020).
+Switch encoder before further investment.
+• α ∈ [0.05, 0.20): marginal regime. Transfer will improve with training but absolute
+performance may be poor.
+• α ≥ 0.20: productive transfer regime (AudioCaps baseline: α ≈ 0.270; AVCaps: α ≈
+0.673). Proceed with full training.
+p
+Once α̂ is estimated, the law Ria ≈ α̂ Rit · Rat gives a pre-training forecast for any planned
+(m, data) configuration. Note: α̂ is valid only within a fixed modality triple and embedding dimension
+(Table 20); do not apply AudioCaps α̂ to SpeechCoco or WavCaps Phase B conditions.
+Step 3 — Choose Phase B data strategically (§5.2; W13). Prioritize domain-matched, highquality annotation over raw scale. AudioCaps (46K pairs, margin 0.567, 99.4% positive-margin
+pairs) outperforms WavCaps (400K pairs, margin 0.249) by approximately 2× on Ria at m =
+512.
+√ The bottleneck theory makes this concrete: a 56% margin drop (0.567 → 0.249) predicts a
+0.45 = 0.67× drop in Ria ; the observed drop is 0.67×. Adding WavCaps scale does improve Rat
+monotonically, but the W13 mixed100k result shows it does not transfer to image-audio retrieval—the
+cross-modal bridge quality does not benefit from noisy caption volume. Use the CLAP alignment
+margin (Table 12) as a pre-training Phase B quality proxy; higher margin is predictive of stronger
+bridge quality.
+Step 4 — Choose Phase A data strategically (§5; W14; Fig. 5). At m ≥ 256, prefer clean humanannotated image-text supervision over larger noisy web-scraped datasets at matched scale. COCO-sub100K (20K images × 5 captions, human-annotated) outperforms CC3M-100K at m ∈ {64, 256, 512}
+and outperforms COCO-full-566K at every tested dimension. Increasing Phase A volume beyond
+≈100K pairs provides no benefit (COCO-full-566K never dominates COCO-sub-100K). At m = 128,
+image diversity can outweigh caption precision (CC3M-100K wins), so the preference for quality is
+dimension-dependent.
+Step 5 — Monitor geometry post-Phase-B (§5.1; Stage 67). If Ria is below the law prediction,
+check the image-audio centroid gap (Appendix G). Centroid-gap regularization (Stage 67, minimize
+ℓ2 between image and audio centroids as an auxiliary loss) adds ≈15% to Ria at m = 256 and
+m = 512 with a non-significant cost to Rat (Holm-corrected p < 0.05). However, centroid gap is
+a post-training diagnostic, not a reliable pre-training predictor: Stage 68-D finds only r2 = 0.046
+between the pre-Phase-B centroid gap and final Ria . Use regularization as a post-training lever after
+confirming that bridge quality (Rat ) is already adequate.
+Step 6 — Use the bottleneck p
+law for capacity planning (§6; Stage 68-C). Once α̂ is estimated
+from a pilot, the law Ria ≈ α̂ Rit · Rat enables pre-training forecasts for any planned (m, data)
+configuration. Robustness: α̂ estimated on AudioCaps transfers to held-out W14 Phase A conditions
+at r = 0.944 (n = 12 held-out (m, source) pairs), meaning Phase A source changes do not require
+re-estimating α. Do not apply AudioCaps α̂ to WavCaps Phase B conditions (different domain,
+different α regime).
+Scope and caveats. This guidance applies specifically to the text-anchored modular protocol with
+frozen backbone encoders:
+22
+
+735
+736
+737
+738
+739
+740
+741
+742
+743
+744
+
+• Direct supervision: joint image-audio training (e.g., AudioCLIP, ImageBind) will achieve
+higher absolute Ria ; this protocol’s advantage is modularity and the absence of image-audio
+pairs.
+• Speech audio with CLAP: α ≈ 0.020 (SpeechCoco), meaning practical transitivity fails;
+CLAP HTSAT-unfused was not trained on speech and lacks the audio-text margin necessary
+for the text bridge to carry semantic structure.
+• No text bridge: settings without a shared text space are outside the scope of this theory; Eq. 1
+requires valid Rit and Rat .
+• New modality triples: measure α̂ from a pilot before extrapolating; the three tested triples
+span two orders of magnitude in α.
+
+23
+
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770
+771
+772
+773
+774
+775
+776
+777
+778
+779
+780
+781
+782
+783
+784
+785
+786
+787
+788
+789
+790
+791
+792
+793
+794
+795
+796
+797
+
+NeurIPS Paper Checklist
+1. Claims
+Question: Do the main claims made in the abstract and introduction accurately reflect the
+paper’s contributions and scope?
+Answer: [Yes]
+Justification: The abstract, introduction, and contributions summarize the same central
+claims developed in the paper: modular text-anchored transfer, bottleneck-theory prediction,
+and ablation-supported mechanism analysis (Sections 1, 3–6). Scope limits are explicitly
+aligned with claims in Section 7.
+Guidelines:
+• The answer [N/A] means that the abstract and introduction do not include the claims
+made in the paper.
+• The abstract and/or introduction should clearly state the claims made, including the
+contributions made in the paper and important assumptions and limitations. A [No] or
+[N/A] answer to this question will not be perceived well by the reviewers.
+• The claims made should match theoretical and experimental results, and reflect how
+much the results can be expected to generalize to other settings.
+• It is fine to include aspirational goals as motivation as long as it is clear that these goals
+are not attained by the paper.
+2. Limitations
+Question: Does the paper discuss the limitations of the work performed by the authors?
+Answer: [Yes]
+Justification: The paper includes a dedicated Limitations section covering absolute performance, single-triple scope, residual variance, and interaction effects (Section 7). Additional
+scope caveats are provided for appendix-only privacy diagnostics.
+Guidelines:
+• The answer [N/A] means that the paper has no limitation while the answer [No] means
+that the paper has limitations, but those are not discussed in the paper.
+• The authors are encouraged to create a separate “Limitations” section in their paper.
+• The paper should point out any strong assumptions and how robust the results are to
+violations of these assumptions (e.g., independence assumptions, noiseless settings,
+model well-specification, asymptotic approximations only holding locally). The authors
+should reflect on how these assumptions might be violated in practice and what the
+implications would be.
+• The authors should reflect on the scope of the claims made, e.g., if the approach was
+only tested on a few datasets or with a few runs. In general, empirical results often
+depend on implicit assumptions, which should be articulated.
+• The authors should reflect on the factors that influence the performance of the approach.
+For example, a facial recognition algorithm may perform poorly when image resolution
+is low or images are taken in low lighting. Or a speech-to-text system might not be
+used reliably to provide closed captions for online lectures because it fails to handle
+technical jargon.
+• The authors should discuss the computational efficiency of the proposed algorithms
+and how they scale with dataset size.
+• If applicable, the authors should discuss possible limitations of their approach to
+address problems of privacy and fairness.
+• While the authors might fear that complete honesty about limitations might be used by
+reviewers as grounds for rejection, a worse outcome might be that reviewers discover
+limitations that aren’t acknowledged in the paper. The authors should use their best
+judgment and recognize that individual actions in favor of transparency play an important role in developing norms that preserve the integrity of the community. Reviewers
+will be specifically instructed to not penalize honesty concerning limitations.
+3. Theory assumptions and proofs
+24
+
+799
+
+Question: For each theoretical result, does the paper provide the full set of assumptions and
+a complete (and correct) proof?
+
+800
+
+Answer: [No]
+
+801
+
+803
+
+Justification: The paper provides an empirical theory with theoretical motivation and failuremode discussion, but does not claim a complete formal proof (Sections 6 and Appendix
+“Bottleneck Theory Details”). We therefore do not present full formal proofs.
+
+804
+
+Guidelines:
+
+798
+
+802
+
+805
+806
+807
+808
+809
+810
+811
+812
+813
+814
+815
+
+• The answer [N/A] means that the paper does not include theoretical results.
+• All the theorems, formulas, and proofs in the paper should be numbered and crossreferenced.
+• All assumptions should be clearly stated or referenced in the statement of any theorems.
+• The proofs can either appear in the main paper or the supplemental material, but if
+they appear in the supplemental material, the authors are encouraged to provide a short
+proof sketch to provide intuition.
+• Inversely, any informal proof provided in the core of the paper should be complemented
+by formal proofs provided in appendix or supplemental material.
+• Theorems and Lemmas that the proof relies upon should be properly referenced.
+4. Experimental result reproducibility
+
+818
+
+Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions
+of the paper (regardless of whether the code and data are provided or not)?
+
+819
+
+Answer: [Yes]
+
+820
+
+822
+
+Justification: We disclose the full experimental protocol, datasets, metrics, and ablation structure in the paper (Section 3 and Appendices), and provide runnable experiment
+scripts/configs and per-seed outputs in the accompanying repository/artifacts.
+
+823
+
+Guidelines:
+
+816
+817
+
+821
+
+824
+825
+826
+827
+828
+829
+830
+831
+832
+833
+834
+835
+836
+837
+838
+839
+840
+841
+842
+843
+844
+845
+846
+847
+848
+849
+
+• The answer [N/A] means that the paper does not include experiments.
+• If the paper includes experiments, a [No] answer to this question will not be perceived
+well by the reviewers: Making the paper reproducible is important, regardless of
+whether the code and data are provided or not.
+• If the contribution is a dataset and/or model, the authors should describe the steps taken
+to make their results reproducible or verifiable.
+• Depending on the contribution, reproducibility can be accomplished in various ways.
+For example, if the contribution is a novel architecture, describing the architecture fully
+might suffice, or if the contribution is a specific model and empirical evaluation, it may
+be necessary to either make it possible for others to replicate the model with the same
+dataset, or provide access to the model. In general. releasing code and data is often
+one good way to accomplish this, but reproducibility can also be provided via detailed
+instructions for how to replicate the results, access to a hosted model (e.g., in the case
+of a large language model), releasing of a model checkpoint, or other means that are
+appropriate to the research performed.
+• While NeurIPS does not require releasing code, the conference does require all submissions to provide some reasonable avenue for reproducibility, which may depend on the
+nature of the contribution. For example
+(a) If the contribution is primarily a new algorithm, the paper should make it clear how
+to reproduce that algorithm.
+(b) If the contribution is primarily a new model architecture, the paper should describe
+the architecture clearly and fully.
+(c) If the contribution is a new model (e.g., a large language model), then there should
+either be a way to access this model for reproducing the results or a way to reproduce
+the model (e.g., with an open-source dataset or instructions for how to construct
+the dataset).
+25
+
+850
+851
+852
+853
+854
+855
+
+(d) We recognize that reproducibility may be tricky in some cases, in which case
+authors are welcome to describe the particular way they provide for reproducibility.
+In the case of closed-source models, it may be that access to the model is limited in
+some way (e.g., to registered users), but it should be possible for other researchers
+to have some path to reproducing or verifying the results.
+5. Open access to data and code
+
+858
+
+Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental
+material?
+
+859
+
+Answer: [Yes]
+
+860
+
+863
+
+Justification: Code, configs, and result artifacts for reproducing the reported experiments are
+provided in the public project repository; all datasets are publicly available and cited in the
+manuscript (Sections 2–3 and appendices). Dataset preparation and execution scripts are
+included.
+
+864
+
+Guidelines:
+
+856
+857
+
+861
+862
+
+865
+866
+867
+868
+869
+870
+871
+872
+873
+874
+875
+876
+877
+878
+879
+880
+881
+882
+883
+884
+
+• The answer [N/A] means that paper does not include experiments requiring code.
+• Please see the NeurIPS code and data submission guidelines (https://neurips.cc/
+public/guides/CodeSubmissionPolicy) for more details.
+• While we encourage the release of code and data, we understand that this might not
+be possible, so [No] is an acceptable answer. Papers cannot be rejected simply for not
+including code, unless this is central to the contribution (e.g., for a new open-source
+benchmark).
+• The instructions should contain the exact command and environment needed to run to
+reproduce the results. See the NeurIPS code and data submission guidelines (https:
+//neurips.cc/public/guides/CodeSubmissionPolicy) for more details.
+• The authors should provide instructions on data access and preparation, including how
+to access the raw data, preprocessed data, intermediate data, and generated data, etc.
+• The authors should provide scripts to reproduce all experimental results for the new
+proposed method and baselines. If only a subset of experiments are reproducible, they
+should state which ones are omitted from the script and why.
+• At submission time, to preserve anonymity, the authors should release anonymized
+versions (if applicable).
+• Providing as much information as possible in supplemental material (appended to the
+paper) is recommended, but including URLs to data and code is permitted.
+6. Experimental setting/details
+
+886
+
+Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer) necessary to understand the results?
+
+887
+
+Answer: [Yes]
+
+888
+
+890
+
+Justification: The paper specifies the two-phase training protocol, projection families,
+datasets/features, metrics, and seed policy (Section 3), and gives detailed ablation setups and
+diagnostics in appendices. Hyperparameters/config choices are provided in released configs.
+
+891
+
+Guidelines:
+
+885
+
+889
+
+892
+893
+894
+895
+896
+897
+
+• The answer [N/A] means that the paper does not include experiments.
+• The experimental setting should be presented in the core of the paper to a level of detail
+that is necessary to appreciate the results and make sense of them.
+• The full details can be provided either with the code, in appendix, or as supplemental
+material.
+7. Experiment statistical significance
+
+899
+
+Question: Does the paper report error bars suitably and correctly defined or other appropriate
+information about the statistical significance of the experiments?
+
+900
+
+Answer: [Yes]
+
+898
+
+26
+
+903
+
+Justification: Main results report variability across seeds (mean±std), and statistical significance is provided with paired tests and Holm-corrected p-values where relevant (e.g.,
+projection-sharing factorial in Section 5.3 and Appendix tables).
+
+904
+
+Guidelines:
+
+901
+902
+
+905
+906
+907
+908
+909
+910
+911
+912
+913
+914
+915
+916
+917
+918
+919
+920
+921
+922
+923
+924
+925
+
+• The answer [N/A] means that the paper does not include experiments.
+• The authors should answer [Yes] if the results are accompanied by error bars, confidence
+intervals, or statistical significance tests, at least for the experiments that support the
+main claims of the paper.
+• The factors of variability that the error bars are capturing should be clearly stated (for
+example, train/test split, initialization, random drawing of some parameter, or overall
+run with given experimental conditions).
+• The method for calculating the error bars should be explained (closed form formula,
+call to a library function, bootstrap, etc.)
+• The assumptions made should be given (e.g., Normally distributed errors).
+• It should be clear whether the error bar is the standard deviation or the standard error
+of the mean.
+• It is OK to report 1-sigma error bars, but one should state it. The authors should
+preferably report a 2-sigma error bar than state that they have a 96% CI, if the hypothesis
+of Normality of errors is not verified.
+• For asymmetric distributions, the authors should be careful not to show in tables or
+figures symmetric error bars that would yield results that are out of range (e.g., negative
+error rates).
+• If error bars are reported in tables or plots, the authors should explain in the text how
+they were calculated and reference the corresponding figures or tables in the text.
+8. Experiments compute resources
+
+928
+
+Question: For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce
+the experiments?
+
+929
+
+Answer: [No]
+
+930
+
+933
+
+Justification: The manuscript does not yet include a full consolidated compute-resource
+table (hardware, memory, and runtime per experiment). Compute/provenance metadata
+are available in experiment artifacts, and we will add a concise compute summary in the
+camera-ready text.
+
+934
+
+Guidelines:
+
+926
+927
+
+931
+932
+
+935
+936
+937
+938
+939
+940
+941
+942
+943
+
+• The answer [N/A] means that the paper does not include experiments.
+• The paper should indicate the type of compute workers CPU or GPU, internal cluster,
+or cloud provider, including relevant memory and storage.
+• The paper should provide the amount of compute required for each of the individual
+experimental runs as well as estimate the total compute.
+• The paper should disclose whether the full research project required more compute
+than the experiments reported in the paper (e.g., preliminary or failed experiments that
+didn’t make it into the paper).
+9. Code of ethics
+
+945
+
+Question: Does the research conducted in the paper conform, in every respect, with the
+NeurIPS Code of Ethics https://neurips.cc/public/EthicsGuidelines?
+
+946
+
+Answer: [Yes]
+
+947
+
+949
+
+Justification: The work uses public datasets and model features, does not involve human
+subjects, and includes explicit scope/ethics caveats (Sections 7 and Appendix privacy note).
+We do not claim formal privacy guarantees where not established.
+
+950
+
+Guidelines:
+
+944
+
+948
+
+951
+952
+
+• The answer [N/A] means that the authors have not reviewed the NeurIPS Code of
+Ethics.
+27
+
+953
+954
+955
+956
+957
+
+• If the authors answer [No], they should explain the special circumstances that require a
+deviation from the Code of Ethics.
+• The authors should make sure to preserve anonymity (e.g., if there is a special consideration due to laws or regulations in their jurisdiction).
+10. Broader impacts
+
+959
+
+Question: Does the paper discuss both potential positive societal impacts and negative
+societal impacts of the work performed?
+
+960
+
+Answer: [Yes]
+
+961
+
+964
+
+Justification: The paper discusses both potential positive impacts (modular, data-silo-friendly
+multimodal extension) and potential risks/limitations (misuse/overclaim risk, limited generalization scope, and non-guaranteed privacy claims) in Sections 7 and 8 plus appendix
+scope notes.
+
+965
+
+Guidelines:
+
+958
+
+962
+963
+
+966
+967
+968
+969
+970
+971
+972
+973
+974
+975
+976
+977
+978
+979
+980
+981
+982
+983
+984
+985
+986
+987
+988
+
+• The answer [N/A] means that there is no societal impact of the work performed.
+• If the authors answer [N/A] or [No], they should explain why their work has no societal
+impact or why the paper does not address societal impact.
+• Examples of negative societal impacts include potential malicious or unintended uses
+(e.g., disinformation, generating fake profiles, surveillance), fairness considerations
+(e.g., deployment of technologies that could make decisions that unfairly impact specific
+groups), privacy considerations, and security considerations.
+• The conference expects that many papers will be foundational research and not tied
+to particular applications, let alone deployments. However, if there is a direct path to
+any negative applications, the authors should point it out. For example, it is legitimate
+to point out that an improvement in the quality of generative models could be used to
+generate Deepfakes for disinformation. On the other hand, it is not needed to point out
+that a generic algorithm for optimizing neural networks could enable people to train
+models that generate Deepfakes faster.
+• The authors should consider possible harms that could arise when the technology is
+being used as intended and functioning correctly, harms that could arise when the
+technology is being used as intended but gives incorrect results, and harms following
+from (intentional or unintentional) misuse of the technology.
+• If there are negative societal impacts, the authors could also discuss possible mitigation
+strategies (e.g., gated release of models, providing defenses in addition to attacks,
+mechanisms for monitoring misuse, mechanisms to monitor how a system learns from
+feedback over time, improving the efficiency and accessibility of ML).
+11. Safeguards
+
+991
+
+Question: Does the paper describe safeguards that have been put in place for responsible
+release of data or models that have a high risk for misuse (e.g., pre-trained language models,
+image generators, or scraped datasets)?
+
+992
+
+Answer: [N/A]
+
+993
+
+996
+
+Justification: The paper does not release a high-risk generative model or scraped raw-media
+dataset as a deployable product; it reports analysis of representation learning behavior on
+public benchmarks. No special controlled-access release mechanism is required for this
+artifact class.
+
+997
+
+Guidelines:
+
+989
+990
+
+994
+995
+
+998
+999
+1000
+1001
+1002
+1003
+1004
+
+• The answer [N/A] means that the paper poses no such risks.
+• Released models that have a high risk for misuse or dual-use should be released with
+necessary safeguards to allow for controlled use of the model, for example by requiring
+that users adhere to usage guidelines or restrictions to access the model or implementing
+safety filters.
+• Datasets that have been scraped from the Internet could pose safety risks. The authors
+should describe how they avoided releasing unsafe images.
+28
+
+1005
+1006
+1007
+1008
+
+• We recognize that providing effective safeguards is challenging, and many papers do
+not require this, but we encourage authors to take this into account and make a best
+faith effort.
+12. Licenses for existing assets
+
+1011
+
+Question: Are the creators or original owners of assets (e.g., code, data, models), used in
+the paper, properly credited and are the license and terms of use explicitly mentioned and
+properly respected?
+
+1012
+
+Answer: [No]
+
+1013
+
+1015
+
+Justification: We cite all major external assets (datasets/models), but the manuscript does not
+yet enumerate explicit license names/terms for each asset in one consolidated place. This
+will be added in the public artifact documentation and camera-ready appendix.
+
+1016
+
+Guidelines:
+
+1009
+1010
+
+1014
+
+1017
+1018
+1019
+1020
+1021
+1022
+1023
+1024
+1025
+1026
+1027
+1028
+1029
+1030
+1031
+1032
+
+• The answer [N/A] means that the paper does not use existing assets.
+• The authors should cite the original paper that produced the code package or dataset.
+• The authors should state which version of the asset is used and, if possible, include a
+URL.
+• The name of the license (e.g., CC-BY 4.0) should be included for each asset.
+• For scraped data from a particular source (e.g., website), the copyright and terms of
+service of that source should be provided.
+• If assets are released, the license, copyright information, and terms of use in the
+package should be provided. For popular datasets, paperswithcode.com/datasets
+has curated licenses for some datasets. Their licensing guide can help determine the
+license of a dataset.
+• For existing datasets that are re-packaged, both the original license and the license of
+the derived asset (if it has changed) should be provided.
+• If this information is not available online, the authors are encouraged to reach out to
+the asset’s creators.
+13. New assets
+
+1034
+
+Question: Are new assets introduced in the paper well documented and is the documentation
+provided alongside the assets?
+
+1035
+
+Answer: [Yes]
+
+1036
+
+1038
+
+Justification: We release new experiment assets (scripts, configs, run logs, and aggregate
+result files) with documentation in the repository so others can reproduce the reported
+figures/tables. These assets include provenance metadata and stage-level outputs.
+
+1039
+
+Guidelines:
+
+1033
+
+1037
+
+1040
+1041
+1042
+1043
+1044
+1045
+1046
+1047
+1048
+
+• The answer [N/A] means that the paper does not release new assets.
+• Researchers should communicate the details of the dataset/code/model as part of their
+submissions via structured templates. This includes details about training, license,
+limitations, etc.
+• The paper should discuss whether and how consent was obtained from people whose
+asset is used.
+• At submission time, remember to anonymize your assets (if applicable). You can either
+create an anonymized URL or include an anonymized zip file.
+14. Crowdsourcing and research with human subjects
+
+1051
+
+Question: For crowdsourcing experiments and research with human subjects, does the paper
+include the full text of instructions given to participants and screenshots, if applicable, as
+well as details about compensation (if any)?
+
+1052
+
+Answer: [N/A]
+
+1053
+1054
+
+Justification: The paper does not use crowdsourcing tasks or human-subject experiments; all
+evaluations are on public datasets with existing annotations.
+
+1055
+
+Guidelines:
+
+1049
+1050
+
+29
+
+1056
+1057
+1058
+1059
+1060
+1061
+1062
+1063
+1064
+1065
+1066
+1067
+1068
+1069
+1070
+1071
+1072
+1073
+1074
+1075
+1076
+1077
+1078
+1079
+1080
+1081
+1082
+1083
+1084
+1085
+1086
+1087
+1088
+1089
+1090
+1091
+1092
+1093
+1094
+1095
+1096
+
+• The answer [N/A] means that the paper does not involve crowdsourcing nor research
+with human subjects.
+• Including this information in the supplemental material is fine, but if the main contribution of the paper involves human subjects, then as much detail as possible should be
+included in the main paper.
+• According to the NeurIPS Code of Ethics, workers involved in data collection, curation,
+or other labor should be paid at least the minimum wage in the country of the data
+collector.
+15. Institutional review board (IRB) approvals or equivalent for research with human
+subjects
+Question: Does the paper describe potential risks incurred by study participants, whether
+such risks were disclosed to the subjects, and whether Institutional Review Board (IRB)
+approvals (or an equivalent approval/review based on the requirements of your country or
+institution) were obtained?
+Answer: [N/A]
+Justification: No human-subject study was conducted, so IRB approval is not applicable to
+this work.
+Guidelines:
+• The answer [N/A] means that the paper does not involve crowdsourcing nor research
+with human subjects.
+• Depending on the country in which research is conducted, IRB approval (or equivalent)
+may be required for any human subjects research. If you obtained IRB approval, you
+should clearly state this in the paper.
+• We recognize that the procedures for this may vary significantly between institutions
+and locations, and we expect authors to adhere to the NeurIPS Code of Ethics and the
+guidelines for their institution.
+• For initial submissions, do not include any information that would break anonymity (if
+applicable), such as the institution conducting the review.
+16. Declaration of LLM usage
+Question: Does the paper describe the usage of LLMs if it is an important, original, or
+non-standard component of the core methods in this research? Note that if the LLM is used
+only for writing, editing, or formatting purposes and does not impact the core methodology,
+scientific rigor, or originality of the research, declaration is not required.
+Answer: [N/A]
+Justification: LLMs are not an important, original, or non-standard component of the
+research methodology; the core method and analysis do not depend on LLM behavior.
+Guidelines:
+• The answer [N/A] means that the core method development in this research does not
+involve LLMs as any important, original, or non-standard components.
+• Please refer to our LLM policy in the NeurIPS handbook for what should or should not
+be described.
+
+30
+
+

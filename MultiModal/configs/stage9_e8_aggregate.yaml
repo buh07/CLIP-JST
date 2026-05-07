@@ -1,0 +1,10 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite"
+
+stage5_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage5_e8a"
+stage6_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage6_e8b"
+stage7_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage7_e8c/E8c_privacy_results.json"
+stage8_results: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage8_e8d/E8d_dpsgd_results.json"
+gate_decision: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage5_gate_decision.json"
+
+seeds: [0, 1, 2]
+mask_seeds: [0, 1, 2]

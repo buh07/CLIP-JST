@@ -1,0 +1,18 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_full_aggregate"
+baseline_method: modular_shared_jl
+stage34_shard_roots:
+  # Existing semantic_followup shards (Stage30 + Stage31, all 8 GPUs)
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu0"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu1"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu2"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu3"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu4"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu5"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu6"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_followup/split/gpu7"
+  # New JL ablation shards (Stage25/26 + Stage29 + Stage32, GPUs 4-7)
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_jlablation/split/gpu4"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_jlablation/split/gpu5"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_jlablation/split/gpu6"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_jlablation/split/gpu7"

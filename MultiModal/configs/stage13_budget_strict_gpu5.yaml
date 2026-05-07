@@ -1,0 +1,82 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_budget_strict_stage13_split/gpu5
+cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches
+coco_ann_root: /jumbo/lisp/f004ndc/CLIP JST/data/coco/annotations
+
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file: text_feats_openai_clip-vit-base-patch32_raw.pt
+
+vision_dim: 768
+text_dim: 512
+shared_raw_dim: 768
+embed_dim: 256
+jl_eps: 0.1
+jl_seed: 42
+pretrained_clip_model: openai/clip-vit-base-patch32
+
+train_split: train_restval
+val_split: val
+test_split: test
+
+n_clients: 20
+min_client_size: 64
+rounds: 12
+local_epochs: 1
+client_val_frac: 0.1
+
+batch_size: 192
+eval_batch_size: 4096
+num_workers: 3
+lr: 0.0007
+grad_clip: 1.0
+
+privacy_split: train_restval
+max_probe_samples: 4000
+attack_train_frac: 0.8
+attack_hidden_dim: 768
+attack_epochs: 20
+attack_lr: 0.001
+attack_batch_size: 1024
+
+methods:
+  - id: mask_concat_budget
+    kind: mask_concat_budget
+    alpha: 1.0
+    beta: 1.0
+    p: 0.5
+    mask_seed: 0
+    budget_dim: 256
+    budget_jl_seed: 31415
+  - id: random_jl_mahal
+    kind: random_jl_mahal
+  - id: clip_head
+    kind: clip_head
+  - id: fedclip_pretrained
+    kind: fedclip_pretrained
+    adapter_rank: 16
+    pretrained_model_name: openai/clip-vit-base-patch32
+    pretrained_proj_seed: 42
+  - id: fedmvp_pretrained
+    kind: fedmvp_pretrained
+    prompt_scale: 0.05
+    pretrained_model_name: openai/clip-vit-base-patch32
+    pretrained_proj_seed: 42
+
+partitions:
+  - id: iid
+    type: iid
+  - id: dir_a1p0
+    type: dirichlet
+    alpha: 1.0
+  - id: dir_a0p5
+    type: dirichlet
+    alpha: 0.5
+  - id: dir_a0p1
+    type: dirichlet
+    alpha: 0.1
+
+method_filter: [mask_concat_budget]
+baseline_method: mask_concat_budget
+seeds: [0, 1, 2]
+device: cuda
+

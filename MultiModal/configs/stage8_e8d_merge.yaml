@@ -1,0 +1,6 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite"
+stage8_shard_files:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage8_e8d/E8d_dpsgd_results_eps14.json"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/e8_concat_suite/stage8_e8d/E8d_dpsgd_results_eps8.json"
+stage8_merged_results_name: "E8d_dpsgd_results.json"
+stage8_merged_marker_name: "stage8_e8d.done.json"

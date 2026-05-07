@@ -19,6 +19,38 @@ data/NUS-WIDE/
 # Experiment results and model checkpoints
 results/
 
+# Large local artifacts / caches (never commit)
+.checkpoints/
+data/cache_smoke/
+logs/
+MultiModal/.venv/
+MultiModal/results/
+MultiModal/logs/
+MultiModal/**/results/
+MultiModal/**/logs/
+
+# Large model/data binaries (use LFS or external artifacts instead)
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+*.onnx
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.parquet
+*.feather
+
+# Large archives
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.7z
+*.rar
+
 # Tool and IDE configs
 .claude/
 .vscode/

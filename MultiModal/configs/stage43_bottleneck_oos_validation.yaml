@@ -1,0 +1,4 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/aggregate"
+stage36_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_full_aggregate/stage36_bottleneck_decomposition/stage36_bottleneck_decomposition.json"
+holdout_source: "stage31_wavcaps_scaling"

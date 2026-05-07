@@ -1,0 +1,61 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_jlablation/split/gpu5"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+av_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/caches/audiocaps_av_clap_htsat_unfused"
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+coco_test_split: "test"
+av_test_split: "test"
+clap_model: "laion/clap-htsat-unfused"
+clip_backbone: "openai/clip-vit-base-patch32"
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+jl_eps: 0.1
+jl_seed: 42
+embed_dims: [128]
+seeds: [0, 1, 2, 3, 4]
+methods:
+  - modular_shared_jl
+  - modular_separate_jl
+  - modular_hybrid_it_jl
+  - modular_hybrid_at_jl
+baseline_method: modular_shared_jl
+topk_values: [1, 5, 10]
+category_prompts:
+  - "speech"
+  - "music"
+  - "dog"
+  - "cat"
+  - "bird"
+  - "car"
+  - "engine"
+  - "siren"
+  - "horn"
+  - "footsteps"
+  - "water"
+  - "rain"
+  - "wind"
+  - "thunder"
+  - "crowd"
+  - "applause"
+  - "door"
+  - "keyboard"
+  - "phone"
+  - "construction"
+device: "cuda"
+eval_batch_size: 4096
+source_experiments:
+  - source_id: "stage25_jlablation"
+    stage_name: "stage20_modular_audio_transitivity"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu5/stage20_modular_audio_transitivity"
+    results_file: "stage20_results.json"
+  - source_id: "stage29_cc3m"
+    stage_name: "stage29_cc3m_phaseA_modular"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage29_cc3m_phaseA_modular"
+    results_file: "stage29_cc3m_phaseA_modular_results.json"
+  - source_id: "stage32_order"
+    stage_name: "stage32_modality_order_ablation"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage32_modality_order_ablation"
+    results_file: "stage32_modality_order_ablation_results.json"

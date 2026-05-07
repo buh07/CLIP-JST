@@ -1,0 +1,5 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage2_dimtax
+shard_output_roots:
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage2_dimtax_split/gpu6
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/strengthen_suite/stage2_dimtax_split/gpu7
+baseline_method: random_jl_mahal

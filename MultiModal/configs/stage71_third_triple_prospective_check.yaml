@@ -1,0 +1,13 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/aggregate
+predictions_lock_json: /jumbo/lisp/f004ndc/CLIP JST/paper/prereg/predictions_stage69.json
+stage69_shard_roots:
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu0
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu1
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu2
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu3
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu4
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu5
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu6
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/split/gpu7
+stage72_form_compare_json: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/aggregate/stage72_third_triple_form_compare/stage72_third_triple_form_compare.json

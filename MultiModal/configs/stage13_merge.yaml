@@ -1,0 +1,8 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_extension
+shard_output_roots:
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_extension_split/gpu4
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_extension_split/gpu5
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_extension_split/gpu6
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_extension_split/gpu7
+baseline_method: mask_concat

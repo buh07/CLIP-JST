@@ -1,0 +1,10 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/aggregate
+stage36_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/stage36_s44_coco/stage36_bottleneck_decomposition/stage36_bottleneck_decomposition.json
+stage58_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/aggregate/stage58_second_triple_aggregate.json
+stage70_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/aggregate/stage70_third_triple_aggregate/stage70_third_triple_aggregate.json
+stage68_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/theory_backing_suite/stage68_law_robustness_reanalysis/stage68_law_robustness_reanalysis/stage68_law_robustness_reanalysis.json
+stage72_results: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/stage69_prereg_suite/speechcoco_full/aggregate/stage72_third_triple_form_compare/stage72_third_triple_form_compare.json
+kfold: 5
+cv_seed: 2026
+powerlaw_bootstrap_n: 1000

@@ -1,0 +1,12 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/aggregate
+shard_output_roots:
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/split/gpu0
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/split/gpu1
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/split/gpu2
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/split/gpu3
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/split/gpu4
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/split/gpu5
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/split/gpu6
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w2_joint_clap_reference/split/gpu7
+gate_relative_threshold: 0.9
+gate_embed_dim: 256

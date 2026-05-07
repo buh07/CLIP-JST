@@ -1,0 +1,10 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/aggregate
+stage25_shard_roots:
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/split/gpu0
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/split/gpu1
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/split/gpu2
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/split/gpu3
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/split/gpu4
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/split/gpu5
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/split/gpu6
+- /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w9_m256_replication/split/gpu7

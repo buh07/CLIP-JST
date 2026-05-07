@@ -1,0 +1,14 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite"
+
+target_dim: 512
+stage36_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/semantic_full_aggregate/stage36_bottleneck_decomposition/stage36_bottleneck_decomposition.json"
+stage37_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/stage37_imagebind_comparison/stage37_imagebind_comparison_results.json"
+stage38_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/stage38_phaseb_quality_analysis/stage38_phaseb_quality_analysis_results.json"
+stage39_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/stage39_modality_gap_linear_vs_jl/stage39_modality_gap_linear_vs_jl_results.json"
+
+stage29_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage29_cc3m_phaseA_modular/stage29_cc3m_phaseA_modular_results.json"
+stage30_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage30_modular_vs_nonmodular/stage30_modular_vs_nonmodular_results.json"
+stage31_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage31_wavcaps_scaling/stage31_wavcaps_scaling_results.json"
+stage32_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage32_modality_order_ablation/stage32_modality_order_ablation_results.json"
+
+stage20_results_path: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_suite/aggregate/stage20_modular_audio_transitivity/stage20_results.json"

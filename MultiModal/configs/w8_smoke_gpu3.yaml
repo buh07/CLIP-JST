@@ -1,0 +1,13 @@
+embed_dims: [256, 512]
+seeds: [0, 1]
+methods_stage30: ["modular_shared_jl", "audio_linear_probe"]
+methods_stage44: ["modular_shared_jl", "audio_linear_probe", "raw_cosine_baseline"]
+eval_batch_size: 2048
+device: "cuda"
+vision_dim: 768
+audio_dim: 512
+text_dim: 512
+shared_raw_dim: 768
+jl_eps: 0.1
+jl_seed: 42
+output_suffix: "_gpu3_smoke"

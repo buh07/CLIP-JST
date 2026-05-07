@@ -1,0 +1,9 @@
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/federated_budget_matched
+stage16_results_name: E16_budget_matched_results.json
+baseline_method: mask_concat
+
+expected_partitions: [iid, dir_a1p0, dir_a0p5, dir_a0p1]
+expected_methods: [mask_concat, random_jl_mahal, clip_head, fedclip_proxy, fedmvp_proxy]
+expected_seeds: [0, 1, 2]
+expected_draws: 5
+

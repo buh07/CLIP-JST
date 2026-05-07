@@ -82,10 +82,11 @@ COCO_TRAIN_IMGS_URL = "http://images.cocodataset.org/zips/train2017.zip"
 COCO_ANNOTATIONS_URL = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
 
 
-def prepare_coco() -> tuple[list[str], list[str]]:
+def prepare_coco() -> tuple[list[str], list[str], list[int]]:
     """
     Downloads COCO train2017 images and annotations if not present.
-    Returns (image_paths, captions) compatible with extract_and_cache_multi_caption().
+    Returns (image_paths, captions, img_ids) compatible with extract_and_cache_multi_caption().
+    img_ids is the sorted list of COCO image IDs in the same order as image_paths.
     """
     coco_dir = DATA_ROOT / "coco"
     img_dir  = coco_dir / "images" / "train2017"
@@ -112,11 +113,13 @@ def prepare_coco() -> tuple[list[str], list[str]]:
 
     image_paths: list[str] = []
     captions: list[str] = []
+    img_ids: list[int] = []
     for img_id in sorted(id2caps):
         img_path = str(img_dir / id2file[img_id])
         if not Path(img_path).exists():
             continue
         image_paths.append(img_path)
+        img_ids.append(img_id)
         caps = id2caps[img_id][:N_CAPTIONS]
         while len(caps) < N_CAPTIONS:
             caps.append(caps[0])
@@ -124,7 +127,7 @@ def prepare_coco() -> tuple[list[str], list[str]]:
 
     print(f"COCO: {len(image_paths)} images, {len(captions)} captions")
     assert len(captions) == len(image_paths) * N_CAPTIONS
-    return image_paths, captions
+    return image_paths, captions, img_ids
 
 
 # ---------------------------------------------------------------------------
@@ -200,7 +203,7 @@ def _encode_images(paths: list[str], model, processor, device, batch_size: int) 
         imgs = [Image.open(p).convert("RGB") for p in batch_paths]
         inp = processor(images=imgs, return_tensors="pt").to(device)
         vision_out = model.vision_model(pixel_values=inp["pixel_values"])
-        f = model.visual_projection(vision_out.pooler_output).cpu()
+        f = vision_out.pooler_output.cpu()
         feats.append(f)
     return torch.cat(feats)
 
@@ -215,7 +218,7 @@ def _encode_texts(texts: list[str], model, processor, device, batch_size: int) -
             input_ids=inp["input_ids"],
             attention_mask=inp.get("attention_mask"),
         )
-        f = model.text_projection(text_out.pooler_output).cpu()
+        f = text_out.pooler_output.cpu()
         feats.append(f)
     return torch.cat(feats)
 
@@ -228,7 +231,7 @@ def extract_and_save(
     processor,
     device: str,
 ) -> None:
-    tag = BACKBONE.replace("/", "_")
+    tag = BACKBONE.replace("/", "_") + "_raw"
     img_out = out_dir / f"image_feats_{tag}.pt"
     txt_out = out_dir / f"text_feats_{tag}.pt"
 
@@ -254,8 +257,16 @@ def extract_and_save(
 
 
 # ---------------------------------------------------------------------------
-# Manifest for D4
+# Manifest and image ID index
 # ---------------------------------------------------------------------------
+
+def write_coco_image_ids(img_ids: list[int], out_dir: Path) -> None:
+    path = out_dir / "image_ids.json"
+    if not path.exists():
+        with open(path, "w") as f:
+            json.dump(img_ids, f)
+        print(f"  Wrote image_ids.json: {path}")
+
 
 def write_coco_manifest(image_paths: list[str], captions: list[str]) -> None:
     manifest_path = DATA_ROOT / "coco" / "manifest.json"
@@ -287,8 +298,9 @@ def main() -> None:
 
     # COCO
     print("=== COCO ===")
-    coco_img, coco_cap = prepare_coco()
+    coco_img, coco_cap, coco_ids = prepare_coco()
     extract_and_save(coco_img, coco_cap, CACHE_ROOT / "coco", model, processor, device)
+    write_coco_image_ids(coco_ids, CACHE_ROOT / "coco")
     write_coco_manifest(coco_img, coco_cap)
 
     # Flickr30K

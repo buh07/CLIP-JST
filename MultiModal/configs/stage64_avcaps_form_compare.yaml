@@ -1,0 +1,6 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/theory_backing_suite/stage64_avcaps_form_compare
+stage58_aggregate: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w1_avcaps_full/aggregate/stage58_second_triple_aggregate.json
+kfold: 5
+cv_seed: 2026
+powerlaw_bootstrap_n: 1000

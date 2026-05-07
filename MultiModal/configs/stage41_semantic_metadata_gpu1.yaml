@@ -1,0 +1,58 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/split/gpu1"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+av_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/caches/audiocaps_av_clap_htsat_unfused"
+coco_annotations_root: "/jumbo/lisp/f004ndc/CLIP JST/data/coco/annotations"
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+coco_test_split: "test"
+av_test_split: "test"
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+jl_eps: 0.1
+jl_seed: 42
+embed_dims: [128]
+seeds: [0, 1, 2, 3, 4]
+methods:
+  - modular_shared_jl
+  - modular_separate_jl
+  - modular_hybrid_at_jl
+  - modular_hybrid_it_jl
+  - audio_linear_probe
+  - audio_text_lora_proxy
+baseline_method: modular_shared_jl
+topk_values: [1, 5, 10]
+category_prompts:
+  - "speech"
+  - "music"
+  - "dog"
+  - "cat"
+  - "bird"
+  - "car"
+  - "engine"
+  - "siren"
+  - "horn"
+  - "footsteps"
+  - "water"
+  - "rain"
+  - "wind"
+  - "thunder"
+  - "crowd"
+  - "applause"
+  - "door"
+  - "keyboard"
+  - "phone"
+  - "construction"
+source_experiments:
+  - source_id: "stage30"
+    stage_name: "stage30_modular_vs_nonmodular"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage30_modular_vs_nonmodular"
+    results_file: "stage30_modular_vs_nonmodular_results.json"
+  - source_id: "stage31"
+    stage_name: "stage31_wavcaps_scaling"
+    stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/domain_gap_closure_suite/stage31_wavcaps_scaling"
+    results_file: "stage31_wavcaps_scaling_results.json"
+device: "cuda"
+eval_batch_size: 4096

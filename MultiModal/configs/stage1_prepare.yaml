@@ -1,0 +1,24 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite"
+
+coco_root: "/jumbo/lisp/f004ndc/CLIP JST/data/coco"
+flickr_root: "/jumbo/lisp/f004ndc/CLIP JST/data/flickr30k"
+caption_zip: "/jumbo/lisp/f004ndc/CLIP JST/data/flickr30k/caption_datasets.zip"
+
+ensure_coco_val2017: true
+n_captions: 5
+
+clip_backbone: "openai/clip-vit-base-patch32"
+clip_batch_size: 256
+existing_coco_image_cache: "/jumbo/lisp/f004ndc/CLIP JST/data/cache/coco/image_feats_openai_clip-vit-base-patch32_raw.pt"
+existing_coco_image_ids_json: "/jumbo/lisp/f004ndc/CLIP JST/data/cache/coco/image_ids.json"
+
+audiocaps_dataset: "JackyHoCL/AudioCaps-mp3"
+clap_model: "laion/clap-htsat-unfused"
+audio_batch_size: 16
+text_batch_size: 256
+audiocaps_target_sr: 48000
+audiocaps_max_examples_per_split:
+
+device: "cuda"
+seeds: [0, 1, 2, 3, 4]

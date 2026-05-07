@@ -1,0 +1,25 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reviewer_fixes_suite/stage39_s44_coco"
+source_stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_jl_ablation/split/gpu7/stage20_modular_audio_transitivity"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/full_suite/caches"
+av_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/caches/audiocaps_av_clap_htsat_unfused"
+
+image_cache_file: "image_feats_openai_clip-vit-base-patch32_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-base-patch32_raw.pt"
+vision_dim: 768
+text_dim: 512
+audio_dim: 512
+shared_raw_dim: 768
+jl_eps: 0.1
+jl_seed: 42
+
+methods: ["modular_separate_jl", "modular_hybrid_it_jl", "modular_hybrid_at_jl"]
+baseline_method: "modular_shared_jl"
+embed_dims: [512]
+seeds: [0,1,2,3,4]
+
+coco_test_split: "test"
+av_test_split: "test"
+eval_batch_size: 4096
+device: "cuda"
+

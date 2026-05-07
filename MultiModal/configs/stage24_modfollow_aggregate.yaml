@@ -1,0 +1,10 @@
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/aggregate"
+stage22_shard_roots:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/stage22/split/gpu4"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/stage22/split/gpu5"
+stage23_shard_roots:
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/stage23/split/gpu4"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/stage23/split/gpu5"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/stage23/split/gpu6"
+  - "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/stage23/split/gpu7"
+prior_stage21_aggregate: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_suite/aggregate/stage21_modular_transitivity_aggregate.json"

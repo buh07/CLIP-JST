@@ -1,0 +1,25 @@
+project_root: "/jumbo/lisp/f004ndc/CLIP JST"
+output_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/post_w3_sequence/stage63_vitl14/stage39_gap"
+source_stage_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/post_w3_sequence/stage63_vitl14/train/stage44_zero_shot_baseline_control"
+cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/caches_vitl14"
+av_cache_root: "/jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/caches_vitl14/audiocaps_av_clap_vitl14"
+
+image_cache_file: "image_feats_openai_clip-vit-large-patch14_raw.pt"
+text_cache_file: "text_feats_openai_clip-vit-large-patch14_raw.pt"
+vision_dim: 1024
+text_dim: 768
+audio_dim: 512
+shared_raw_dim: 1024
+jl_eps: 0.1
+jl_seed: 42
+
+methods: ["modular_shared_jl", "audio_linear_probe"]
+baseline_method: "modular_shared_jl"
+embed_dims: [64]
+seeds: [0,1,2,3,4]
+
+coco_test_split: "test"
+av_test_split: "test"
+eval_batch_size: 4096
+device: "cuda"
+

@@ -1,0 +1,9 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/aggregate
+baseline_method: modular_shared_jl
+stage44_results_path: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage44_zero_shot_baseline_control/stage44_zero_shot_baseline_control_results.json
+stage55_roots:
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/mixed200k
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/mixed46k
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/clean_source
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_suite/w3_wavcaps_holdout/clean_source_46k

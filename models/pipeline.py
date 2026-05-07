@@ -9,6 +9,8 @@ this module only wraps the JL + Mahalanobis layers.
 
 from __future__ import annotations
 
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -49,6 +51,11 @@ class CLIPJSTPipeline(nn.Module):
         else:
             self.mahal_v = LowRankMahalanobis(embed_dim, mahal_rank)
             self.mahal_t = LowRankMahalanobis(embed_dim, mahal_rank)
+
+        # Learnable log-scale temperature (initialized to log(1/0.07) ≈ 2.659).
+        # Trainer detects this attribute and uses it instead of the config value,
+        # matching the CLIP paper's learnable temperature for a fair comparison.
+        self.logit_scale = nn.Parameter(torch.ones([]) * math.log(1.0 / 0.07))
 
     def encode_image(self, v: torch.Tensor) -> torch.Tensor:
         return F.normalize(self.mahal_v(self.jl_v(v)), dim=-1)

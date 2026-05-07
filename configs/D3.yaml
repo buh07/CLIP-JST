@@ -1,7 +1,10 @@
 # D3: Relationship-graph ablations
 cache_dir: data/cache
-image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
-text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
+image_cache_file: image_feats_openai_clip-vit-base-patch32_raw.pt
+text_cache_file:  text_feats_openai_clip-vit-base-patch32_raw.pt
+# Same-dim aligned features used only for agreement filtering + width estimates.
+agreement_image_cache_file: image_feats_openai_clip-vit-base-patch32.pt
+agreement_text_cache_file:  text_feats_openai_clip-vit-base-patch32.pt
 output_dir: results/D3
 
 embed_dims: [64, 128, 256, 512]
@@ -12,9 +15,15 @@ n_hard_negatives: 1            # Hard negatives per image
 jl_eps:  0.1
 jl_seed: 42
 
-epochs:      30
-batch_size:  2048
-lr:          1.0e-3
-temperature: 0.07
-patience:    5
-seed:        0
+epochs:        50
+warmup_epochs: 5
+batch_size:    2048
+lr:            1.0e-3
+# Hard-negative runs are noisier because training graph includes adversarial edges.
+# Use a slightly smaller LR + longer budget for stability.
+hard_neg_lr:        5.0e-4
+hard_neg_epochs:    80
+hard_neg_patience:  16
+temperature:   0.07
+patience:      10
+seeds:         [0, 1, 2]

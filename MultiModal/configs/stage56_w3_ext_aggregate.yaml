@@ -1,0 +1,13 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/aggregate
+baseline_method: modular_shared_jl
+stage44_results_path: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/experimental_fixes_suite/stage44_zero_shot_baseline_control/stage44_zero_shot_baseline_control_results.json
+stage55_roots:
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu0
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu1
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu2
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu3
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu4
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu5
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu6
+  - /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/next_run_suite/w3_holdout_ext/split/gpu7

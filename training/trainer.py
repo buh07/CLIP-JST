@@ -30,9 +30,15 @@ def train(
     ckpt_dir: Path | None = None,
     loss_fn: Callable = infonce_loss,
     patience: int = 5,
+    warmup_epochs: int = 0,
+    grad_clip: float = 1.0,
 ) -> dict[str, Any]:
     """
     Generic training loop for any model that implements encode_image / encode_text.
+
+    If model exposes a `logit_scale` nn.Parameter, the trainer uses
+    logit_scale.exp().clamp(max=100) as the temperature each step — matching the
+    CLIP paper's learnable temperature.  Otherwise `temperature` is used.
 
     Returns dict with keys 'train_losses', 'val_recalls', 'best_epoch', 'best_recall'.
     """
@@ -41,7 +47,21 @@ def train(
         [p for p in model.parameters() if p.requires_grad],
         lr=lr, weight_decay=1e-4,
     )
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
+
+    warmup_epochs = min(warmup_epochs, epochs)
+    if warmup_epochs > 0:
+        warmup_sched = torch.optim.lr_scheduler.LinearLR(
+            optimizer, start_factor=0.01, end_factor=1.0, total_iters=warmup_epochs
+        )
+        cosine_sched = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=max(1, epochs - warmup_epochs)
+        )
+        scheduler = torch.optim.lr_scheduler.SequentialLR(
+            optimizer, schedulers=[warmup_sched, cosine_sched],
+            milestones=[warmup_epochs],
+        )
+    else:
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
 
     best_recall = -1.0
     best_epoch = 0
@@ -58,10 +78,20 @@ def train(
             img_feat = img_feat.to(device)
             txt_feat = txt_feat.to(device)
             img_emb, txt_emb = model(img_feat, txt_feat)
-            # Pass temperature; loss functions that don't need it accept **kwargs or None.
-            loss = loss_fn(img_emb, txt_emb, temperature)
+            # Use learnable logit_scale if the model exposes it.
+            if hasattr(model, "logit_scale"):
+                temp = model.logit_scale.exp().clamp(max=100.0)
+            else:
+                temp = temperature
+            loss = loss_fn(img_emb, txt_emb, temp)
+            # Optional model-specific regularization (e.g., orthogonality constraints).
+            if hasattr(model, "regularization_loss"):
+                reg = model.regularization_loss()
+                if reg is not None:
+                    loss = loss + reg
             optimizer.zero_grad()
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
             optimizer.step()
             epoch_loss += loss.item()
 

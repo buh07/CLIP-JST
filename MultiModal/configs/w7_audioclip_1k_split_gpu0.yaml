@@ -1,0 +1,10 @@
+project_root: /jumbo/lisp/f004ndc/CLIP JST
+output_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/w7_audioclip_1k_split
+av_cache_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/modular_transitivity_followup/caches/audiocaps_av_clap_htsat_unfused
+media_root: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/neurips_strengthen_suite/stage37_imagebind_comparison/media/test
+audioclip_repo_root: /tmp/audioclip_repo
+audioclip_checkpoint: /jumbo/lisp/f004ndc/CLIP JST/MultiModal/results/reinforce_completion_suite/caches/audioclip/AudioCLIP-Full-Training.pt
+audio_sample_rate: 44100
+batch_size: 16
+max_items: null
+device: cuda
