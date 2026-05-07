@@ -51,6 +51,9 @@ MultiModal/**/logs/
 *.7z
 *.rar
 
+# Generated reproducibility packaging outputs
+artifacts/
+
 # Tool and IDE configs
 .claude/
 .vscode/
